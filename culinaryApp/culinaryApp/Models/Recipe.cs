@@ -3,14 +3,18 @@
     public class Recipe
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public int MyProperty { get; set; }
-        /*public Level Level { get; set; }*/
-        public string Time { get; set; }
+        public string? Title { get; set; }
+        public Level Level { get; set; }
+        public TimeSpan? Time { get; set; }
         public int People { get; set; }
         public string? Photo  { get; set; }
         public RecipeType RecipeType { get; set; }
-
+        public ICollection<ProductFromRecipe>? Products { get; set; }
+        public ICollection<Step>? Steps { get; set; }
+        public User? Owner { get; set; }
+        public ICollection<User>? WatchedByUsers { get; set; }
+        public ICollection<Planner>? Planners { get; set; }
+        public ICollection<UserComment>? UserComments { get; set; }
     }
 
     public enum Level
