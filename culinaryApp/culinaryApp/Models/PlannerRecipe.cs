@@ -1,11 +1,11 @@
 ﻿namespace culinaryApp.Models
 {
-    public class WatchedRecipes
+    public class PlannerRecipe
     {
+        public int PlannerId { get; set; }
+        public Planner? Planner { get; set; }
         public int RecipeId { get; set; }
         public Recipe? Recipe { get; set; }
-        public int UserId { get; set; }
-        public User? User { get; set; }
 
     }
 }

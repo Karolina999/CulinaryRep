@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace culinaryApp.Configurations
 {
-    public class RecipeConfiguration
+    public class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
     {
         public void Configure(EntityTypeBuilder<Recipe> builder)
         {
@@ -38,18 +38,19 @@ namespace culinaryApp.Configurations
                 .HasColumnType("nvarchar(50)")
                 .IsRequired();
 
-             
+            builder.HasOne(x => x.Owner)
+                .WithMany();
+
+
+            /*builder.HasMany(x => x.Steps)
+                .WithOne(x => x.Recipe)
+                .IsRequired();*/
+            /*
+             * Products
+             * WatchedRecipes - watchedrecipes Conf
+             * PlannerRecipe
+             * UserComments
+             */
         }
     }
 }
-
-/*
-        public int People { get; set; }
-
-        public ICollection<ProductFromRecipe>? Products { get; set; }
-        public ICollection<Step>? Steps { get; set; }
-        public User? Owner { get; set; }
-        public ICollection<User>? WatchedByUsers { get; set; }
-        public ICollection<Planner>? Planners { get; set; }
-        public ICollection<UserComment>? UserComments { get; set; }
-*/
