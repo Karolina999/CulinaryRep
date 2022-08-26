@@ -2,6 +2,7 @@
 {
     public class ProductFromList
     {
+        public int Id { get; set; }
         public Unit Unit { get; set; }
         public Ingredient? Ingredient { get; set; }
         public ShoppingList? ShoppingList { get; set; }

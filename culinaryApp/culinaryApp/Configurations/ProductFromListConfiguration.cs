@@ -8,6 +8,12 @@ namespace culinaryApp.Configurations
     {
         public void Configure(EntityTypeBuilder<ProductFromList> builder)
         {
+            builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.Id)
+                .HasColumnType("int")
+                .ValueGeneratedOnAdd();
+
             builder.Property(x => x.Unit)
                 .HasColumnType("nvarchar(50)")
                 .IsRequired();

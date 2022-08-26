@@ -8,6 +8,12 @@ namespace culinaryApp.Configurations
     {
         public void Configure(EntityTypeBuilder<ProductFromRecipe> builder)
         {
+            builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.Id)
+                .HasColumnType("int")
+                .ValueGeneratedOnAdd();
+
             builder.Property(x => x.Unit)
                 .HasColumnType("nvarchar(50)")
                 .IsRequired();
@@ -18,6 +24,6 @@ namespace culinaryApp.Configurations
             builder.HasOne(x => x.Recipe)
                 .WithMany();
         }
-    {
+    
     }
 }
