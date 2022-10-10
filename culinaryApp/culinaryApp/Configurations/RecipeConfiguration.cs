@@ -23,8 +23,12 @@ namespace culinaryApp.Configurations
                 .HasColumnType("nvarchar(30)")
                 .IsRequired();
 
-            builder.Property(x => x.Time)
+           /* builder.Property(x => x.Time)
                 .HasConversion(new TimeSpanToStringConverter())
+                .IsRequired();*/
+
+            builder.Property(x => x.Time)
+                .HasColumnType("nvarchar(MAX)")
                 .IsRequired();
 
             builder.Property(x => x.People)
