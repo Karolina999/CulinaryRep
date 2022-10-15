@@ -11,11 +11,15 @@ namespace culinaryApp.Controllers
     public class UserCommentController : ControllerBase
     {
         private readonly IUserCommentRepository _userCommentRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
 
-        public UserCommentController(IUserCommentRepository userCommentRepository, IMapper mapper)
+        public UserCommentController(IUserCommentRepository userCommentRepository, IUserRepository userRepository, IRecipeRepository recipeRepository, IMapper mapper)
         {
             _userCommentRepository = userCommentRepository;
+            _userRepository = userRepository;
+            _recipeRepository = recipeRepository;
             _mapper = mapper;
         }
 
@@ -45,6 +49,32 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             return Ok(userComment);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateUserComment([FromQuery] int userId, [FromQuery] int recipeId, [FromBody] UserCommentDto userCommentCreate)
+        {
+            if (userCommentCreate == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userCommentMap = _mapper.Map<UserComment>(userCommentCreate);
+
+            userCommentMap.User = _userRepository.GetUser(userId);
+            userCommentMap.Recipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (!_userCommentRepository.CreateUserComment(userCommentMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
         }
     }
 }

@@ -8,5 +8,7 @@ namespace culinaryApp.Interfaces
         Ingredient GetIngredient(int id);
         Ingredient GetIngredient(string name);
         bool IngredientExists(int recipeId);
+        bool CreateIngredient(Ingredient ingredient);
+        bool Save();
     }
 }

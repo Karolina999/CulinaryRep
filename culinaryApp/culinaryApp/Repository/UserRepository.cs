@@ -13,6 +13,12 @@ namespace culinaryApp.Repository
             _context = context;
         }
 
+        public bool CreateUser(User user)
+        {
+            _context.Add(user);
+            return Save();
+        }
+
         public User GetUser(int id)
         {
             return _context.Users.FirstOrDefault(x => x.Id == id);
@@ -31,6 +37,12 @@ namespace culinaryApp.Repository
         public ICollection<ShoppingList> GetUserShoppingList(int userId)
         {
             return _context.ShoppingLists.Where(x => x.User.Id == userId).ToList();
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UserExists(int userId)

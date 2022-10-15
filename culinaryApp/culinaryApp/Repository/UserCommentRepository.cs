@@ -13,6 +13,12 @@ namespace culinaryApp.Repository
             _context = context;
         }
 
+        public bool CreateUserComment(UserComment userComment)
+        {
+            _context.Add(userComment);
+            return Save();
+        }
+
         public UserComment GetUserComment(int id)
         {
             return _context.UserComments.FirstOrDefault(x => x.Id == id);
@@ -23,9 +29,16 @@ namespace culinaryApp.Repository
             return _context.UserComments.OrderBy(x => x.Id).ToList();
         }
 
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
+        }
+
         public bool UserCommentExists(int userCommentId)
         {
-            return _context.UserComments.Any(x => x.Id == userCommentId);
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

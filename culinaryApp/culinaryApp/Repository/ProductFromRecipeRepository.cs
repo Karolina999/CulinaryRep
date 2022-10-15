@@ -13,6 +13,12 @@ namespace culinaryApp.Repository
             _context = context;
         }
 
+        public bool CreateProductFromRecipe(ProductFromRecipe productFromRecipe)
+        {
+            _context.Add(productFromRecipe);
+            return Save();
+        }
+
         public ProductFromRecipe GetProduct(int id)
         {
             return _context.ProductFromRecipes.FirstOrDefault(x => x.Id == id);
@@ -26,6 +32,12 @@ namespace culinaryApp.Repository
         public bool ProductExists(int productId)
         {
             return _context.ProductFromRecipes.Any(x => x.Id == productId);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

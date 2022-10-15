@@ -11,11 +11,13 @@ namespace culinaryApp.Controllers
     public class ShoppingListController : ControllerBase
     {
         private readonly IShoppingListRepository _shoppingListRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public ShoppingListController(IShoppingListRepository shoppingListRepository, IMapper mapper)
+        public ShoppingListController(IShoppingListRepository shoppingListRepository, IUserRepository userRepository, IMapper mapper)
         {
             _shoppingListRepository = shoppingListRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -45,6 +47,31 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             return Ok(shoppingList);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateShoppingList([FromQuery] int userId, [FromBody] ShoppingListDto shoppingList)
+        {
+            if (shoppingList == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var shoppingListMap = _mapper.Map<ShoppingList>(shoppingList);
+
+            shoppingListMap.User = _userRepository.GetUser(userId);
+
+            if (!_shoppingListRepository.CreateShoppingList(shoppingListMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
         }
     }
 }

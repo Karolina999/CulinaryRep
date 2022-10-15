@@ -13,6 +13,12 @@ namespace culinaryApp.Repository
             _context = context;
         }
 
+        public bool CreatePlanner(Planner planner)
+        {
+            _context.Add(planner);
+            return Save();
+        }
+
         public Planner GetPlanner(int id)
         {
             return _context.Planners.FirstOrDefault(x => x.Id == id);
@@ -23,14 +29,15 @@ namespace culinaryApp.Repository
             return _context.Planners.OrderBy(x => x.Id).ToList();
         }
 
-        /*public ICollection<Planner> GetPlannersOfOwner(int ownerId)
-        {
-            return _context.Planners.Where(x => x.User.Id == ownerId).ToList();
-        }*/
-
         public bool PlanerExists(int plannerId)
         {
             return _context.Planners.Any(x => x.Id == plannerId);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

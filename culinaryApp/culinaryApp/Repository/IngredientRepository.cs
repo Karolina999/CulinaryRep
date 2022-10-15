@@ -12,6 +12,12 @@ namespace culinaryApp.Repository
             _context = context;
         }
 
+        public bool CreateIngredient(Ingredient ingredient)
+        {
+            _context.Add(ingredient);
+            return Save();
+        }
+
         public Ingredient GetIngredient(int id)
         {
             return _context.Ingredients.FirstOrDefault(x => x.Id == id);
@@ -30,6 +36,12 @@ namespace culinaryApp.Repository
         public bool IngredientExists(int ingredientId)
         {
             return _context.Ingredients.Any(x => x.Id == ingredientId);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

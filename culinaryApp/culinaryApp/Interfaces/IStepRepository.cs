@@ -7,5 +7,7 @@ namespace culinaryApp.Interfaces
         ICollection<Step> GetSteps();
         Step GetStep(int id);
         bool StepExists(int stepId);
+        bool CreateStep(Step step);
+        bool Save();
     }
 }

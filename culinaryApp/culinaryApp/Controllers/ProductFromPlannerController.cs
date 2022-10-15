@@ -11,11 +11,15 @@ namespace culinaryApp.Controllers
     public class ProductFromPlannerController : ControllerBase
     {
         private readonly IProductFromPlannerRepository _productRepository;
+        private readonly IIngredientRepository _ingredientRepository;
+        private readonly IPlannerRepository _plannerRepository;
         private readonly IMapper _mapper;
 
-        public ProductFromPlannerController(IProductFromPlannerRepository productRepository, IMapper mapper)
+        public ProductFromPlannerController(IProductFromPlannerRepository productRepository, IIngredientRepository ingredientRepository, IPlannerRepository plannerRepository, IMapper mapper)
         {
             _productRepository = productRepository;
+            _ingredientRepository = ingredientRepository;
+            _plannerRepository = plannerRepository;
             _mapper = mapper;
         }
 
@@ -45,6 +49,32 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             return Ok(product);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateProductFromPlanner([FromQuery] int ingredientId, [FromQuery] int plannerId, [FromBody] ProductFromPlannerDto productFromPlannerCreate)
+        {
+            if (productFromPlannerCreate == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var productFromPlannerMap = _mapper.Map<ProductFromPlanner>(productFromPlannerCreate);
+
+            productFromPlannerMap.Ingredient = _ingredientRepository.GetIngredient(ingredientId);
+            productFromPlannerMap.Planner = _plannerRepository.GetPlanner(plannerId);
+
+            if (!_productRepository.CreateProductFromPlanner(productFromPlannerMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
         }
     }
 }

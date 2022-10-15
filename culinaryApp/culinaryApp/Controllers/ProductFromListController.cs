@@ -11,11 +11,15 @@ namespace culinaryApp.Controllers
     public class ProductFromListController : ControllerBase
     {
         private readonly IProductFromListRepository _productRepository;
+        private readonly IIngredientRepository _ingredientRepository;
+        private readonly IShoppingListRepository _shoppingListRepository;
         private readonly IMapper _mapper;
 
-        public ProductFromListController(IProductFromListRepository productRepository, IMapper mapper)
+        public ProductFromListController(IProductFromListRepository productRepository, IIngredientRepository ingredientRepository, IShoppingListRepository shoppingListRepository, IMapper mapper)
         {
             _productRepository = productRepository;
+            _ingredientRepository = ingredientRepository;
+            _shoppingListRepository = shoppingListRepository;
             _mapper = mapper;
         }
 
@@ -45,6 +49,33 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             return Ok(product);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateProductFromList([FromQuery] int ingredientId, [FromQuery] int shoppingListId, [FromBody] ProductFromListDto productFromListCreate)
+        {
+            if (productFromListCreate == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var productFromLisMap = _mapper.Map<ProductFromList>(productFromListCreate);
+
+            productFromLisMap.Ingredient = _ingredientRepository.GetIngredient(ingredientId);
+
+            productFromLisMap.ShoppingList = _shoppingListRepository.GetShoppingList(shoppingListId);
+
+            if (!_productRepository.CreateProductFromList(productFromLisMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
         }
     }
 }

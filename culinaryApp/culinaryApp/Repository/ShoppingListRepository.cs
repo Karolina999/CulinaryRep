@@ -13,6 +13,12 @@ namespace culinaryApp.Repository
             _context = context;
         }
 
+        public bool CreateShoppingList(ShoppingList shoppingList)
+        {
+            _context.Add(shoppingList);
+            return Save();
+        }
+
         public ShoppingList GetShoppingList(int id)
         {
             return _context.ShoppingLists.FirstOrDefault(x => x.Id == id);
@@ -26,6 +32,12 @@ namespace culinaryApp.Repository
         public ICollection<ShoppingList> GetShoppingLists(string title)
         {
             return _context.ShoppingLists.OrderBy(x => x.Id).Where(x => x.Title == title).ToList();
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool ShoppingListExists(int shoppingListId)

@@ -11,11 +11,13 @@ namespace culinaryApp.Controllers
     public class StepController : ControllerBase
     {
         private readonly IStepRepository _stepRepository;
+        private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
 
-        public StepController(IStepRepository stepRepository, IMapper mapper)
+        public StepController(IStepRepository stepRepository, IRecipeRepository recipeRepository, IMapper mapper)
         {
             _stepRepository = stepRepository;
+            _recipeRepository = recipeRepository;
             _mapper = mapper;
         }
 
@@ -34,7 +36,7 @@ namespace culinaryApp.Controllers
         [HttpGet("{stepId}")]
         [ProducesResponseType(200, Type = typeof(Step))]
         [ProducesResponseType(400)]
-        public IActionResult Getstep(int stepId)
+        public IActionResult GetStep(int stepId)
         {
             if (!_stepRepository.StepExists(stepId))
                 return NotFound();
@@ -45,6 +47,31 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             return Ok(step);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateStep([FromQuery] int recipeId, [FromBody] StepDto stepCreate)
+        {
+            if (stepCreate == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var stepMap = _mapper.Map<Step>(stepCreate);
+
+            stepMap.Recipe = _recipeRepository.GetRecipe(recipeId); 
+
+            if (!_stepRepository.CreateStep(stepMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
         }
     }
 }

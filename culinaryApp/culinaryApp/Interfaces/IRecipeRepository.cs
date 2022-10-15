@@ -10,6 +10,8 @@ namespace culinaryApp.Interfaces
         ICollection<Step> GetRecipeSteps(int recipeId);
         decimal GetRecipeRating(int recipeId);
         bool RecipeExists(int recipeId);
+        bool CreateRecipe(Recipe recipe);
+        bool Save();
 
     }
 }

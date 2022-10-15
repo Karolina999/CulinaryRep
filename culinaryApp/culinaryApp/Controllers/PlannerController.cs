@@ -11,11 +11,13 @@ namespace culinaryApp.Controllers
     public class PlannerController : ControllerBase
     {
         private readonly IPlannerRepository _plannerRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public PlannerController(IPlannerRepository plannerRepository, IMapper mapper)
+        public PlannerController(IPlannerRepository plannerRepository, IUserRepository userRepository, IMapper mapper)
         {
             _plannerRepository = plannerRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -47,21 +49,29 @@ namespace culinaryApp.Controllers
             return Ok(planner);
         }
 
-        /*[HttpGet("{ownerId}")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Planner>))]
+        [HttpPost]
+        [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult GetPlannersOfOwner(int ownerId)
+        public IActionResult CreatePlanner([FromQuery] int userId, [FromBody] PlannerDto plannerCreate)
         {
-            if (!_plannerRepository.PlanerExists(plannerId))
-                return NotFound();
-
-            var planners = _mapper.Map<List<PlannerDto>>(_plannerRepository.GetPlannersOfOwner(ownerId));
+            if (plannerCreate == null)
+                return BadRequest(ModelState);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(planners);
-        }*/
+            var plannerMap = _mapper.Map<Planner>(plannerCreate);
 
+            plannerMap.User = _userRepository.GetUser(userId);
+
+            if (!_plannerRepository.CreatePlanner(plannerMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
+        }
     }
 }

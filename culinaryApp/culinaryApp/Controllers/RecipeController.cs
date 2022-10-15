@@ -11,11 +11,13 @@ namespace culinaryApp.Controllers
     public class RecipeController : ControllerBase
     {
         private readonly IRecipeRepository _recipeRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public RecipeController(IRecipeRepository recipeRepository, IMapper mapper)
+        public RecipeController(IRecipeRepository recipeRepository, IUserRepository userRepository, IMapper mapper)
         {
             _recipeRepository = recipeRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -71,14 +73,37 @@ namespace culinaryApp.Controllers
             if (!_recipeRepository.RecipeExists(recipeId))
                 return NotFound();
 
-            var stepsBeforeMapper = _recipeRepository.GetRecipeSteps(recipeId);
-
-            var steps = _mapper.Map<StepDto>(_recipeRepository.GetRecipeSteps(recipeId));
+            var steps = _mapper.Map<List<StepDto>>(_recipeRepository.GetRecipeSteps(recipeId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             return Ok(steps);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateProductFromPlanner([FromQuery] int userId, [FromBody] RecipeDto recipeCreate)
+        {
+            if (recipeCreate == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var recipeMap = _mapper.Map<Recipe>(recipeCreate);
+
+            recipeMap.Owner = _userRepository.GetUser(userId);
+
+            if (!_recipeRepository.CreateRecipe(recipeMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
         }
 
     }

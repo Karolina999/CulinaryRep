@@ -11,11 +11,15 @@ namespace culinaryApp.Controllers
     public class ProductFromRecipeController : ControllerBase
     {
         private readonly IProductFromRecipeRepository _productRepository;
+        private readonly IIngredientRepository _ingredientRepository;
+        private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
 
-        public ProductFromRecipeController(IProductFromRecipeRepository productRepository, IMapper mapper)
+        public ProductFromRecipeController(IProductFromRecipeRepository productRepository, IIngredientRepository ingredientRepository, IRecipeRepository recipeRepository, IMapper mapper)
         {
             _productRepository = productRepository;
+            _ingredientRepository = ingredientRepository;
+            _recipeRepository = recipeRepository;
             _mapper = mapper;
         }
 
@@ -45,6 +49,32 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             return Ok(product);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateProductFromRecipe([FromQuery] int recipeId, [FromQuery] int ingredientId, [FromBody] ProductFromRecipeDto productFromRecipeCreate)
+        {
+            if (productFromRecipeCreate == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var productFromRecipeMap = _mapper.Map<ProductFromRecipe>(productFromRecipeCreate);
+
+            productFromRecipeMap.Recipe = _recipeRepository.GetRecipe(recipeId);
+            productFromRecipeMap.Ingredient = _ingredientRepository.GetIngredient(ingredientId);
+
+            if(!_productRepository.CreateProductFromRecipe(productFromRecipeMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
         }
     }
 }
