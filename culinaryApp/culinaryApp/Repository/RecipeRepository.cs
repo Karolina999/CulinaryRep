@@ -30,12 +30,17 @@ namespace culinaryApp.Repository
 
         public ICollection<Recipe> GetRecipes()
         {
-            return _context.Recipes.OrderBy(p => p.Id).ToList();
+            return _context.Recipes.OrderBy(x => x.Id).ToList();
         }
 
         public ICollection<Recipe> GetRecipes(string title)
         {
-            return _context.Recipes.OrderBy(p => p.Id).Where( x => x.Title == title).ToList();
+            return _context.Recipes.OrderBy(x => x.Id).Where(x => x.Title == title).ToList();
+        }
+
+        public ICollection<Step> GetRecipeSteps(int recipeId)
+        {
+            return _context.Steps.Where(x => x.Recipe.Id == recipeId).OrderBy(x => x.StepNumber).ToList();
         }
 
         public bool RecipeExists(int recipeId)

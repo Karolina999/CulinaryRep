@@ -7,6 +7,7 @@ namespace culinaryApp.Interfaces
         ICollection<Recipe> GetRecipes();
         Recipe GetRecipe(int id);
         ICollection<Recipe> GetRecipes(string title);
+        ICollection<Step> GetRecipeSteps(int recipeId);
         decimal GetRecipeRating(int recipeId);
         bool RecipeExists(int recipeId);
 
