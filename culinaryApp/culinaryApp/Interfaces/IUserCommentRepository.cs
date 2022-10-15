@@ -7,6 +7,7 @@ namespace culinaryApp.Interfaces
         ICollection<UserComment> GetUserComments();
         UserComment GetUserComment(int id);
         bool UserCommentExists(int userCommentId);
+        bool UserCommentRecipeExists(int userId, int recipeId);
         bool CreateUserComment(UserComment userComment);
         bool Save();
     }

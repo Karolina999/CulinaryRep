@@ -81,6 +81,22 @@ namespace culinaryApp.Controllers
             return Ok(steps);
         }
 
+        [HttpGet("{recipeId}/comments")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<UserComment>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetRecipeComments(int recipeId)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            var comments = _mapper.Map<List<UserCommentDto>>(_recipeRepository.GetRecipeComments(recipeId));
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(comments);
+        }
+
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]

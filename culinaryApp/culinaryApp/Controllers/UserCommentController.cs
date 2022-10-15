@@ -62,6 +62,24 @@ namespace culinaryApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var isOwner = _userRepository.GetUserRecipes(userId)
+                .Where(x => x.Id == recipeId)
+                .FirstOrDefault();
+
+            if (isOwner != null)
+            {
+                ModelState.AddModelError("", "User cannot comment his own recipe");
+                return StatusCode(422, ModelState);
+            }
+
+            var alreadyCommented = _userCommentRepository.UserCommentRecipeExists(userId, recipeId);
+
+            if (alreadyCommented)
+            {
+                ModelState.AddModelError("", "A user has already commented on this recipe");
+                return StatusCode(422, ModelState);
+            }
+
             var userCommentMap = _mapper.Map<UserComment>(userCommentCreate);
 
             userCommentMap.User = _userRepository.GetUser(userId);

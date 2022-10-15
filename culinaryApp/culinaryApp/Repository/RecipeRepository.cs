@@ -24,6 +24,11 @@ namespace culinaryApp.Repository
             return _context.Recipes.FirstOrDefault(x => x.Id == id);
         }
 
+        public ICollection<UserComment> GetRecipeComments(int recipeId)
+        {
+            return _context.UserComments.Where(x => x.Recipe.Id == recipeId).ToList();
+        }
+
         public decimal GetRecipeRating(int recipeId)
         {
             var review = _context.UserComments.Where(x => x.Recipe.Id == recipeId);

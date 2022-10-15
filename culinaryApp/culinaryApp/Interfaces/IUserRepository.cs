@@ -6,8 +6,9 @@ namespace culinaryApp.Interfaces
     {
         ICollection<User> GetUsers();
         User GetUser(int id);
-        ICollection<Recipe> GetUserRecipe(int userId);
+        ICollection<Recipe> GetUserRecipes(int userId);
         ICollection<ShoppingList> GetUserShoppingList(int userId);
+        ICollection<UserComment> GetUserComments(int userId);
         bool UserExists(int userId);
         bool CreateUser(User user);
         bool Save();

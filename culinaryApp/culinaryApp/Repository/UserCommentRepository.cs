@@ -37,8 +37,14 @@ namespace culinaryApp.Repository
 
         public bool UserCommentExists(int userCommentId)
         {
-            var saved = _context.SaveChanges();
-            return saved > 0 ? true : false;
+            return _context.UserComments.Any(x => x.Id == userCommentId);
+        }
+
+        public bool UserCommentRecipeExists(int userId, int recipeId)
+        {
+            return _context.UserComments
+                .Where(x => x.Recipe.Id == recipeId)
+                .Any(x => x.User.Id == userId);
         }
     }
 }

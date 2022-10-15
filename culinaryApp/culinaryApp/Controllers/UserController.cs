@@ -47,37 +47,53 @@ namespace culinaryApp.Controllers
             return Ok(user);
         }
 
-        /*[HttpGet("{userId/Recipe}")]
-        [ProducesResponseType(200, Type = typeof(Recipe))]
+        [HttpGet("{userId}/comments")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<UserComment>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetUserComments(int userId)
+        {
+            if (!_userRepository.UserExists(userId))
+                return NotFound();
+
+            var comments = _mapper.Map<List<UserCommentDto>>(_userRepository.GetUserComments(userId));
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(comments);
+        }
+
+        [HttpGet("{userId}/recipe")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Recipe>))]
         [ProducesResponseType(400)]
         public IActionResult GetUserRecipe(int userId)
         {
             if (!_userRepository.UserExists(userId))
                 return NotFound();
 
-            var recipe = _mapper.Map<RecipeDto>(_userRepository.GetUserRecipe(userId));
+            var recipes = _mapper.Map<List<RecipeDto>>(_userRepository.GetUserRecipes(userId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(recipe);
-        }*/
+            return Ok(recipes);
+        }
 
-        /*[HttpGet("{userId/ShoppingList}")]
-        [ProducesResponseType(200, Type = typeof(ShoppingList))]
+        [HttpGet("{userId}/ShoppingList")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ShoppingList>))]
         [ProducesResponseType(400)]
         public IActionResult GetUserShoppingList(int userId)
         {
             if (!_userRepository.UserExists(userId))
                 return NotFound();
 
-            var shoppingList = _mapper.Map<ShoppingListDto>(_userRepository.GetUserShoppingList(userId));
+            var shoppingList = _mapper.Map<List<ShoppingListDto>>(_userRepository.GetUserShoppingList(userId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             return Ok(shoppingList);
-        }*/
+        }
 
         [HttpPost]
         [ProducesResponseType(204)]
@@ -89,6 +105,16 @@ namespace culinaryApp.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var user = _userRepository.GetUsers()
+                .Where(x => x.Email == userCreate.Email)
+                .FirstOrDefault();
+
+            if (user != null)
+            {
+                ModelState.AddModelError("", "There is a user with this e-mail");
+                return StatusCode(422, ModelState);
+            }
 
             var userMap = _mapper.Map<User>(userCreate);
 

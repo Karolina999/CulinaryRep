@@ -59,6 +59,7 @@ namespace culinaryApp.Controllers
             var ingredient = _ingredientRepository.GetIngredients()
                 .Where(x => x.Name.Trim().ToUpper() == ingredientCreate.Name.TrimEnd().ToUpper())
                 .FirstOrDefault();
+
             if (ingredient != null)
             {
                 ModelState.AddModelError("", "Ingredient already exists");

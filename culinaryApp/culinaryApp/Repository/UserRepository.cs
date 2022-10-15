@@ -24,7 +24,12 @@ namespace culinaryApp.Repository
             return _context.Users.FirstOrDefault(x => x.Id == id);
         }
 
-        public ICollection<Recipe> GetUserRecipe(int userId)
+        public ICollection<UserComment> GetUserComments(int userId)
+        {
+            return _context.UserComments.Where(x => x.User.Id == userId).ToList();
+        }
+
+        public ICollection<Recipe> GetUserRecipes(int userId)
         {
             return _context.Recipes.Where(x => x.Owner.Id == userId).ToList();
         }
