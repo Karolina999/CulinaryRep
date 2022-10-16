@@ -64,5 +64,11 @@ namespace culinaryApp.Repository
             var saved = _context.SaveChanges();
             return saved > 0 ? true : false;
         }
+
+        public bool UpdateRecipe(Recipe recipe)
+        {
+            _context.Update(recipe);
+            return Save();
+        }
     }
 }

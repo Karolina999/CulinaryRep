@@ -44,5 +44,11 @@ namespace culinaryApp.Repository
         {
             return _context.ShoppingLists.Any(x => x.Id == shoppingListId);
         }
+
+        public bool UpdateShoppingList(ShoppingList shoppingList)
+        {
+            _context.Update(shoppingList);
+            return Save();
+        }
     }
 }

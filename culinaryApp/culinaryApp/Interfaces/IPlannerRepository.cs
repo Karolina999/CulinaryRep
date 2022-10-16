@@ -6,8 +6,9 @@ namespace culinaryApp.Interfaces
     {
         ICollection<Planner> GetPlanners();
         Planner GetPlanner(int id);
-        bool PlanerExists(int plannerId);
+        bool PlannerExists(int plannerId);
         bool CreatePlanner(Planner planner);
+        bool UpdatePlanner(Planner planner);
         bool Save();
     }
 }

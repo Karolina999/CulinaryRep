@@ -38,7 +38,7 @@ namespace culinaryApp.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetPlaner(int plannerId)
         {
-            if (!_plannerRepository.PlanerExists(plannerId))
+            if (!_plannerRepository.PlannerExists(plannerId))
                 return NotFound();
 
             var planner = _mapper.Map<PlannerDto>(_plannerRepository.GetPlanner(plannerId));
@@ -72,6 +72,35 @@ namespace culinaryApp.Controllers
 
             return Ok("Successfully created");
 
+        }
+
+        [HttpPut("{plannerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdatePlanner(int plannerId, [FromBody] PlannerDto updatePlanner)
+        {
+            if (updatePlanner == null)
+                return BadRequest(ModelState);
+
+            if (plannerId != updatePlanner.Id)
+                return BadRequest(ModelState);
+
+            if (!_plannerRepository.PlannerExists(plannerId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var plannerMap = _mapper.Map<Planner>(updatePlanner);
+
+            if (!_plannerRepository.UpdatePlanner(plannerMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
         }
     }
 }

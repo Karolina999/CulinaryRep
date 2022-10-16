@@ -12,6 +12,7 @@ namespace culinaryApp.Interfaces
         decimal GetRecipeRating(int recipeId);
         bool RecipeExists(int recipeId);
         bool CreateRecipe(Recipe recipe);
+        bool UpdateRecipe(Recipe recipe);
         bool Save();
 
     }

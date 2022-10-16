@@ -73,5 +73,34 @@ namespace culinaryApp.Controllers
             return Ok("Successfully created");
 
         }
+
+        [HttpPut("{shoppingListId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateShoppingList(int shoppingListId, [FromBody] ShoppingListDto updateShoppingList)
+        {
+            if (updateShoppingList == null)
+                return BadRequest(ModelState);
+
+            if (shoppingListId != updateShoppingList.Id)
+                return BadRequest(ModelState);
+
+            if (!_shoppingListRepository.ShoppingListExists(shoppingListId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var shoppingListMap = _mapper.Map<ShoppingList>(updateShoppingList);
+
+            if (!_shoppingListRepository.UpdateShoppingList(shoppingListMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }

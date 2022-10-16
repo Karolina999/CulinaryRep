@@ -122,5 +122,34 @@ namespace culinaryApp.Controllers
 
         }
 
+        [HttpPut("{recipeId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateRecipe(int recipeId, [FromBody] RecipeDto updateRecipe)
+        {
+            if (updateRecipe == null)
+                return BadRequest(ModelState);
+
+            if (recipeId != updateRecipe.Id)
+                return BadRequest(ModelState);
+
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var RecipeMap = _mapper.Map<Recipe>(updateRecipe);
+
+            if (!_recipeRepository.UpdateRecipe(RecipeMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
     }
 }

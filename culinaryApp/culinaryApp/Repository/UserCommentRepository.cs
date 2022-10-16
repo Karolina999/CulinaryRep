@@ -35,6 +35,12 @@ namespace culinaryApp.Repository
             return saved > 0 ? true : false;
         }
 
+        public bool UpdateUserComment(UserComment userComment)
+        {
+            _context.Update(userComment);
+            return Save();
+        }
+
         public bool UserCommentExists(int userCommentId)
         {
             return _context.UserComments.Any(x => x.Id == userCommentId);

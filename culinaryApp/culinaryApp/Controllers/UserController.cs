@@ -127,5 +127,44 @@ namespace culinaryApp.Controllers
             return Ok("Successfully created");
 
         }
+
+        [HttpPut("{userId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateUser(int userId, [FromBody] UserDto updateUser)
+        {
+            if (updateUser == null)
+                return BadRequest(ModelState);
+
+            if (userId != updateUser.Id)
+                return BadRequest(ModelState);
+
+            if (!_userRepository.UserExists(userId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            /*var user = _userRepository.GetUsers()
+               .Where(x => x.Email == updateUser.Email)
+               .FirstOrDefault();
+
+            if (user != null)
+            {
+                ModelState.AddModelError("", "There is a user with this e-mail");
+                return StatusCode(422, ModelState);
+            }*/
+
+            var userMap = _mapper.Map<User>(updateUser);
+
+            if (!_userRepository.UpdateUser(userMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }

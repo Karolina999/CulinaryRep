@@ -74,11 +74,63 @@ namespace culinaryApp.Controllers
             if (!_ingredientRepository.CreateIngredient(ingredientMap))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
-                return StatusCode(500, ModelState); 
+                return StatusCode(500, ModelState);
             }
 
             return Ok("Successfully created");
 
+        }
+
+        [HttpPut("{ingredientId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateIngredient(int ingredientId, [FromBody] IngredientDto updateIngredient)
+        {
+            if (updateIngredient == null)
+                return BadRequest(ModelState);
+
+            if (ingredientId != updateIngredient.Id)
+                return BadRequest(ModelState);
+
+            if (!_ingredientRepository.IngredientExists(ingredientId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var ingredientMap = _mapper.Map<Ingredient>(updateIngredient);
+
+            if (!_ingredientRepository.UpdateIngredient(ingredientMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{ingredientId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteIngredient(int ingredientId)
+        {
+            if (!_ingredientRepository.IngredientExists(ingredientId))
+                return NotFound();
+
+            var ingredientToDelete = _ingredientRepository.GetIngredient(ingredientId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if(!_ingredientRepository.DeleteIngredient(ingredientToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
         }
     }
 }

@@ -7,8 +7,10 @@ namespace culinaryApp.Interfaces
         ICollection<Ingredient> GetIngredients();
         Ingredient GetIngredient(int id);
         Ingredient GetIngredient(string name);
-        bool IngredientExists(int recipeId);
+        bool IngredientExists(int ingredientId);
         bool CreateIngredient(Ingredient ingredient);
+        bool UpdateIngredient(Ingredient ingredient);
+        bool DeleteIngredient(Ingredient ingredient);
         bool Save();
     }
 }

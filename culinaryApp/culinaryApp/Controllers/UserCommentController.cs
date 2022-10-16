@@ -94,5 +94,34 @@ namespace culinaryApp.Controllers
             return Ok("Successfully created");
 
         }
+
+        [HttpPut("{userCommentId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateUserComment(int userCommentId, [FromBody] UserCommentDto updateUserComment)
+        {
+            if (updateUserComment == null)
+                return BadRequest(ModelState);
+
+            if (userCommentId != updateUserComment.Id)
+                return BadRequest(ModelState);
+
+            if (!_userCommentRepository.UserCommentExists(userCommentId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var userCommentMap = _mapper.Map<UserComment>(updateUserComment);
+
+            if (!_userCommentRepository.UpdateUserComment(userCommentMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }

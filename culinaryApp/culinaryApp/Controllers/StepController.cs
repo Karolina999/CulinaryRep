@@ -73,5 +73,34 @@ namespace culinaryApp.Controllers
             return Ok("Successfully created");
 
         }
+
+        [HttpPut("{stepId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateStep(int stepId, [FromBody] StepDto updateStep)
+        {
+            if (updateStep == null)
+                return BadRequest(ModelState);
+
+            if (stepId != updateStep.Id)
+                return BadRequest(ModelState);
+
+            if (!_stepRepository.StepExists(stepId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var stepMap = _mapper.Map<Step>(updateStep);
+
+            if (!_stepRepository.UpdateStep(stepMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }

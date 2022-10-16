@@ -9,6 +9,7 @@ namespace culinaryApp.Interfaces
         ICollection<ShoppingList> GetShoppingLists(string title);
         bool ShoppingListExists(int shoppingListId);
         bool CreateShoppingList(ShoppingList shoppingList);
+        bool UpdateShoppingList(ShoppingList shoppingList);
         bool Save();
     }
 }

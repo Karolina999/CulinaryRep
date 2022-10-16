@@ -50,6 +50,12 @@ namespace culinaryApp.Repository
             return saved > 0 ? true : false;
         }
 
+        public bool UpdateUser(User user)
+        {
+            _context.Update(user);
+            return Save();
+        }
+
         public bool UserExists(int userId)
         {
             return _context.Users.Any(x => x.Id == userId);

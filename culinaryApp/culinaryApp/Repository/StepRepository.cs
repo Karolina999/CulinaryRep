@@ -39,5 +39,11 @@ namespace culinaryApp.Repository
         {
             return _context.Steps.Any(x => x.Id == stepId);
         }
+
+        public bool UpdateStep(Step step)
+        {
+            _context.Update(step);
+            return Save();
+        }
     }
 }

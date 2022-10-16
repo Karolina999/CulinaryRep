@@ -8,6 +8,7 @@ namespace culinaryApp.Interfaces
         ProductFromList GetProduct(int id);
         bool ProductExists(int productId);
         bool CreateProductFromList(ProductFromList productFromList);
+        bool UpdateProductFromList(ProductFromList productFromList);
         bool Save();
     }
 }

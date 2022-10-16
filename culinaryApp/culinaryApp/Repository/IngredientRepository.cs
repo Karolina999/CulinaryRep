@@ -18,6 +18,12 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool DeleteIngredient(Ingredient ingredient)
+        {
+            _context.Remove(ingredient);
+            return Save();
+        }
+
         public Ingredient GetIngredient(int id)
         {
             return _context.Ingredients.FirstOrDefault(x => x.Id == id);
@@ -42,6 +48,12 @@ namespace culinaryApp.Repository
         {
             var saved = _context.SaveChanges();
             return saved > 0 ? true : false;
+        }
+
+        public bool UpdateIngredient(Ingredient ingredient)
+        {
+            _context.Update(ingredient);
+            return Save();
         }
     }
 }

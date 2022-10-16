@@ -29,7 +29,7 @@ namespace culinaryApp.Repository
             return _context.Planners.OrderBy(x => x.Id).ToList();
         }
 
-        public bool PlanerExists(int plannerId)
+        public bool PlannerExists(int plannerId)
         {
             return _context.Planners.Any(x => x.Id == plannerId);
         }
@@ -38,6 +38,12 @@ namespace culinaryApp.Repository
         {
             var saved = _context.SaveChanges();
             return saved > 0 ? true : false;
+        }
+
+        public bool UpdatePlanner(Planner planner)
+        {
+            _context.Update(planner);
+            return Save();
         }
     }
 }
