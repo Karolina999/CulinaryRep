@@ -19,14 +19,30 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool DeleteUser(User user)
+        {
+            _context.Remove(user);
+            return Save();
+        }
+
         public User GetUser(int id)
         {
             return _context.Users.FirstOrDefault(x => x.Id == id);
         }
 
+        public User GetUserByEmail(string email)
+        {
+            return _context.Users.FirstOrDefault(x => x.Email == email);
+        }
+
         public ICollection<UserComment> GetUserComments(int userId)
         {
             return _context.UserComments.Where(x => x.User.Id == userId).ToList();
+        }
+
+        public ICollection<Planner> GetUserPlanners(int userId)
+        {
+            return _context.Planners.Where(x => x.User.Id == userId).ToList();
         }
 
         public ICollection<Recipe> GetUserRecipes(int userId)

@@ -10,6 +10,8 @@ namespace culinaryApp.Interfaces
         bool UserCommentRecipeExists(int userId, int recipeId);
         bool CreateUserComment(UserComment userComment);
         bool UpdateUserComment(UserComment userComment);
+        bool DeleteUserComment(UserComment userComment);
+        bool DeleteUserComments(ICollection<UserComment> userComments);
         bool Save();
     }
 }

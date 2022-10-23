@@ -12,12 +12,23 @@ namespace culinaryApp.Controllers
     {
         private readonly IRecipeRepository _recipeRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IStepRepository _stepRepository;
+        private readonly IProductFromRecipeRepository _productRepository;
+        private readonly IUserCommentRepository _commentRepository;
         private readonly IMapper _mapper;
 
-        public RecipeController(IRecipeRepository recipeRepository, IUserRepository userRepository, IMapper mapper)
+        public RecipeController(IRecipeRepository recipeRepository,
+            IUserRepository userRepository,
+            IStepRepository stepRepository,
+            IProductFromRecipeRepository productRepository,
+            IUserCommentRepository commentRepository,
+            IMapper mapper)
         {
             _recipeRepository = recipeRepository;
             _userRepository = userRepository;
+            _stepRepository = stepRepository;
+            _productRepository = productRepository;
+            _commentRepository = commentRepository;
             _mapper = mapper;
         }
 
@@ -145,6 +156,50 @@ namespace culinaryApp.Controllers
             if (!_recipeRepository.UpdateRecipe(RecipeMap))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{recipeId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteRecipe(int recipeId)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            var recipeToDelete = _recipeRepository.GetRecipe(recipeId);
+            var stepsToDelete = _recipeRepository.GetRecipeSteps(recipeId);
+            var productsToDelete = _recipeRepository.GetRecipeProducts(recipeId);
+            var commentsToDelete = _recipeRepository.GetRecipeComments(recipeId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (stepsToDelete.Count() > 0 && !_stepRepository.DeleteSteps(stepsToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (productsToDelete.Count() > 0 && !_productRepository.DeleteProductsFromRecipe(productsToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (commentsToDelete.Count() > 0 && !_commentRepository.DeleteUserComments(commentsToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (!_recipeRepository.DeleteRecipe(recipeToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);
             }
 

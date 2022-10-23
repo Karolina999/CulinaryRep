@@ -19,6 +19,18 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool DeleteStep(Step step)
+        {
+            _context.Remove(step);
+            return Save();
+        }
+
+        public bool DeleteSteps(ICollection<Step> steps)
+        {
+            _context.RemoveRange(steps);
+            return Save();
+        }
+
         public Step GetStep(int id)
         {
             return _context.Steps.FirstOrDefault(x => x.Id == id);

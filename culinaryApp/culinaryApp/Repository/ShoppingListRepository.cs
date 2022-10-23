@@ -19,6 +19,33 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool DeleteShoppingList(ShoppingList shoppingList)
+        {
+            _context.Remove(shoppingList);
+            return Save();
+        }
+
+        public bool DeleteShoppingLists(ICollection<ShoppingList> shoppingLists)
+        {
+            _context.RemoveRange(shoppingLists);
+            return Save();
+        }
+
+        public ICollection<ProductFromList> GetProductsFromList(int shoppingListId)
+        {
+            return _context.ProductFromLists.Where(x => x.ShoppingList.Id == shoppingListId).ToList();
+        }
+
+        public ICollection<ProductFromList> GetProductsFromLists(ICollection<ShoppingList> shoppingLists)
+        {
+            var products = new List<ProductFromList>();
+            foreach (ShoppingList shoppingList in shoppingLists)
+            {
+                products.AddRange(_context.ProductFromLists.Where(x => x.ShoppingList.Id == shoppingList.Id).ToList());
+            }
+            return products;
+        }
+
         public ShoppingList GetShoppingList(int id)
         {
             return _context.ShoppingLists.FirstOrDefault(x => x.Id == id);

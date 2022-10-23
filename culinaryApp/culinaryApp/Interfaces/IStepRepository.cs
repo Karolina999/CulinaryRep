@@ -9,6 +9,8 @@ namespace culinaryApp.Interfaces
         bool StepExists(int stepId);
         bool CreateStep(Step step);
         bool UpdateStep(Step step);
+        bool DeleteStep(Step step);
+        bool DeleteSteps(ICollection<Step> steps);
         bool Save();
     }
 }

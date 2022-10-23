@@ -123,5 +123,29 @@ namespace culinaryApp.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{userCommentId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteUserComment(int userCommentId)
+        {
+            if (!_userCommentRepository.UserCommentExists(userCommentId))
+                return NotFound();
+
+            var userCommentToDelete = _userCommentRepository.GetUserComment(userCommentId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_userCommentRepository.DeleteUserComment(userCommentToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
+        }
     }
 }

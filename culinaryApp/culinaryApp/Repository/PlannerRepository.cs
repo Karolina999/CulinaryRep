@@ -19,14 +19,41 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool DeletePlanner(Planner planner)
+        {
+            _context.Remove(planner);
+            return Save();
+        }
+
+        public bool DeletePlanners(ICollection<Planner> planners)
+        {
+            _context.RemoveRange(planners);
+            return Save();
+        }
+
         public Planner GetPlanner(int id)
         {
             return _context.Planners.FirstOrDefault(x => x.Id == id);
         }
 
+        public ICollection<ProductFromPlanner> GetPlannerProducts(int plannerId)
+        {
+            return _context.ProductFromPlanners.Where(x => x.Planner.Id == plannerId).ToList();
+        }
+
         public ICollection<Planner> GetPlanners()
         {
             return _context.Planners.OrderBy(x => x.Id).ToList();
+        }
+
+        public ICollection<ProductFromPlanner> GetPlannersProducts(ICollection<Planner> planners)
+        {
+            var products = new List<ProductFromPlanner>();
+            foreach(var planner in planners)
+            {
+                products.AddRange(_context.ProductFromPlanners.Where(x => x.Planner.Id == planner.Id).ToList());
+            }
+            return products;
         }
 
         public bool PlannerExists(int plannerId)

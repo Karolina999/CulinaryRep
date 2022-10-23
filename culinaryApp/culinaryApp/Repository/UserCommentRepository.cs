@@ -19,6 +19,18 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool DeleteUserComment(UserComment userComment)
+        {
+            _context.Remove(userComment);
+            return Save();
+        }
+
+        public bool DeleteUserComments(ICollection<UserComment> userComments)
+        {
+            _context.RemoveRange(userComments);
+            return Save();
+        }
+
         public UserComment GetUserComment(int id)
         {
             return _context.UserComments.FirstOrDefault(x => x.Id == id);

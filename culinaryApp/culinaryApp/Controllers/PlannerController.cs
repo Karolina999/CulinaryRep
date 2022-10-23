@@ -12,12 +12,14 @@ namespace culinaryApp.Controllers
     {
         private readonly IPlannerRepository _plannerRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IProductFromPlannerRepository _productFromPlannerRepository;
         private readonly IMapper _mapper;
 
-        public PlannerController(IPlannerRepository plannerRepository, IUserRepository userRepository, IMapper mapper)
+        public PlannerController(IPlannerRepository plannerRepository, IUserRepository userRepository, IProductFromPlannerRepository productFromPlannerRepository, IMapper mapper)
         {
             _plannerRepository = plannerRepository;
             _userRepository = userRepository;
+            _productFromPlannerRepository = productFromPlannerRepository;
             _mapper = mapper;
         }
 
@@ -47,6 +49,22 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             return Ok(planner);
+        }
+
+        [HttpGet("{plannerId}/products")]
+        [ProducesResponseType(200, Type = typeof(Planner))]
+        [ProducesResponseType(400)]
+        public IActionResult GetPlannerProducts(int plannerId)
+        {
+            if (!_plannerRepository.PlannerExists(plannerId))
+                return NotFound();
+
+            var products = _mapper.Map<List<ProductFromPlannerDto>>(_plannerRepository.GetPlannerProducts(plannerId));
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(products);
         }
 
         [HttpPost]
@@ -101,6 +119,37 @@ namespace culinaryApp.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpDelete("{plannerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeletePlanner(int plannerId)
+        {
+            if (!_plannerRepository.PlannerExists(plannerId))
+                return NotFound();
+
+            var plannerToDelete = _plannerRepository.GetPlanner(plannerId);
+            var productsToDelete = _plannerRepository.GetPlannerProducts(plannerId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (productsToDelete.Count() > 0 && !_productFromPlannerRepository.DeleteProductsFromPlanner(productsToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (!_plannerRepository.DeletePlanner(plannerToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        
         }
     }
 }

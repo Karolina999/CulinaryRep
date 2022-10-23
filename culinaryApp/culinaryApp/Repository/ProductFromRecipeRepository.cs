@@ -19,6 +19,18 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool DeleteProductFromRecipe(ProductFromRecipe productFromRecipe)
+        {
+            _context.Remove(productFromRecipe);
+            return Save();
+        }
+
+        public bool DeleteProductsFromRecipe(ICollection<ProductFromRecipe> productsFromRecipe)
+        {
+            _context.RemoveRange(productsFromRecipe);
+            return Save();
+        }
+
         public ProductFromRecipe GetProduct(int id)
         {
             return _context.ProductFromRecipes.FirstOrDefault(x => x.Id == id);

@@ -19,6 +19,18 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool DeleteRecipe(Recipe recipe)
+        {
+            _context.Remove(recipe);
+            return Save();
+        }
+
+        public bool DeleteRecipes(ICollection<Recipe> recipes)
+        {
+            _context.RemoveRange(recipes);
+            return Save();
+        }
+
         public Recipe GetRecipe(int id)
         {
             return _context.Recipes.FirstOrDefault(x => x.Id == id);
@@ -27,6 +39,11 @@ namespace culinaryApp.Repository
         public ICollection<UserComment> GetRecipeComments(int recipeId)
         {
             return _context.UserComments.Where(x => x.Recipe.Id == recipeId).ToList();
+        }
+
+        public ICollection<ProductFromRecipe> GetRecipeProducts(int recipeId)
+        {
+            return _context.ProductFromRecipes.Where(x => x.Recipe.Id == recipeId).ToList();
         }
 
         public decimal GetRecipeRating(int recipeId)
@@ -47,6 +64,36 @@ namespace culinaryApp.Repository
         public ICollection<Recipe> GetRecipes(string title)
         {
             return _context.Recipes.OrderBy(x => x.Id).Where(x => x.Title == title).ToList();
+        }
+
+        public ICollection<UserComment> GetRecipesComments(ICollection<Recipe> recipes)
+        {
+            var comments = new List<UserComment>();
+            foreach (var recipe in recipes)
+            {
+                comments.AddRange(_context.UserComments.Where(x => x.Recipe.Id == recipe.Id).ToList());
+            }
+            return comments;
+        }
+
+        public ICollection<ProductFromRecipe> GetRecipesProducts(ICollection<Recipe> recipes)
+        {
+            var products = new List<ProductFromRecipe>();
+            foreach (var recipe in recipes)
+            {
+                products.AddRange(_context.ProductFromRecipes.Where(x => x.Recipe.Id == recipe.Id).ToList());
+            }
+            return products;
+        }
+
+        public ICollection<Step> GetRecipesSteps(ICollection<Recipe> recipes)
+        {
+            var steps = new List<Step>();
+            foreach (var recipe in recipes)
+            {
+                steps.AddRange(_context.Steps.Where(x => x.Recipe.Id == recipe.Id).ToList());
+            }
+            return steps;
         }
 
         public ICollection<Step> GetRecipeSteps(int recipeId)

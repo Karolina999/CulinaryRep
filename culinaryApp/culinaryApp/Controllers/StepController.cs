@@ -102,5 +102,29 @@ namespace culinaryApp.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{stepId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteStep(int stepId)
+        {
+            if (!_stepRepository.StepExists(stepId))
+                return NotFound();
+
+            var stepToDelete = _stepRepository.GetStep(stepId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_stepRepository.DeleteStep(stepToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
+        }
     }
 }

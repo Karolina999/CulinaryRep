@@ -12,12 +12,14 @@ namespace culinaryApp.Controllers
     {
         private readonly IShoppingListRepository _shoppingListRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IProductFromListRepository _productRepository;
         private readonly IMapper _mapper;
 
-        public ShoppingListController(IShoppingListRepository shoppingListRepository, IUserRepository userRepository, IMapper mapper)
+        public ShoppingListController(IShoppingListRepository shoppingListRepository, IUserRepository userRepository, IProductFromListRepository productRepository, IMapper mapper)
         {
             _shoppingListRepository = shoppingListRepository;
             _userRepository = userRepository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
 
@@ -47,6 +49,22 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             return Ok(shoppingList);
+        }
+
+        [HttpGet("{shoppingListId}/products")]
+        [ProducesResponseType(200, Type = typeof(ProductFromList))]
+        [ProducesResponseType(400)]
+        public IActionResult GetProductFromList(int shoppingListId)
+        {
+            if (!_shoppingListRepository.ShoppingListExists(shoppingListId))
+                return NotFound();
+
+            var products = _mapper.Map<ICollection<ProductFromListDto>>(_shoppingListRepository.GetProductsFromList(shoppingListId));
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(products);
         }
 
         [HttpPost]
@@ -101,6 +119,37 @@ namespace culinaryApp.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpDelete("{shoppingListId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteShoppingList(int shoppingListId)
+        {
+            if (!_shoppingListRepository.ShoppingListExists(shoppingListId))
+                return NotFound();
+
+            var productToDelete = _shoppingListRepository.GetProductsFromList(shoppingListId);
+            var shoppingListToDelete = _shoppingListRepository.GetShoppingList(shoppingListId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (productToDelete.Count() > 0 && !_productRepository.DeleteProductsFromList(productToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (!_shoppingListRepository.DeleteShoppingList(shoppingListToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
         }
     }
 }

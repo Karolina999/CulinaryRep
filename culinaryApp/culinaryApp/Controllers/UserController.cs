@@ -11,11 +11,37 @@ namespace culinaryApp.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRecipeRepository _recipeRepository;
+        private readonly IProductFromRecipeRepository _productFromRecipeRepository;
+        private readonly IStepRepository _stepRepository;
+        private readonly IUserCommentRepository _commentRepository;
+        private readonly IPlannerRepository _plannerRepository;
+        private readonly IProductFromPlannerRepository _productFromPlannerRepository;
+        private readonly IShoppingListRepository _shoppingListRepository;
+        private readonly IProductFromListRepository _productFromListRepository;
         private readonly IMapper _mapper;
 
-        public UserController(IUserRepository userRepository, IMapper mapper)
+        public UserController(
+            IUserRepository userRepository,
+            IRecipeRepository recipeRepository,
+            IProductFromRecipeRepository productFromRecipeRepository,
+            IStepRepository stepRepository,
+            IUserCommentRepository commentRepository,
+            IPlannerRepository plannerRepository,
+            IProductFromPlannerRepository productFromPlannerRepository,
+            IShoppingListRepository shoppingListRepository,
+            IProductFromListRepository productFromListRepository,
+            IMapper mapper)
         {
             _userRepository = userRepository;
+            _recipeRepository = recipeRepository;
+            _productFromRecipeRepository = productFromRecipeRepository;
+            _stepRepository = stepRepository;
+            _commentRepository = commentRepository;
+            _plannerRepository = plannerRepository;
+            _productFromPlannerRepository = productFromPlannerRepository;
+            _shoppingListRepository = shoppingListRepository;
+            _productFromListRepository = productFromListRepository;
             _mapper = mapper;
         }
 
@@ -63,10 +89,10 @@ namespace culinaryApp.Controllers
             return Ok(comments);
         }
 
-        [HttpGet("{userId}/recipe")]
+        [HttpGet("{userId}/recipes")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Recipe>))]
         [ProducesResponseType(400)]
-        public IActionResult GetUserRecipe(int userId)
+        public IActionResult GetUserRecipes(int userId)
         {
             if (!_userRepository.UserExists(userId))
                 return NotFound();
@@ -79,20 +105,36 @@ namespace culinaryApp.Controllers
             return Ok(recipes);
         }
 
-        [HttpGet("{userId}/ShoppingList")]
+        [HttpGet("{userId}/shoppingLists")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ShoppingList>))]
         [ProducesResponseType(400)]
-        public IActionResult GetUserShoppingList(int userId)
+        public IActionResult GetUserShoppingLists(int userId)
         {
             if (!_userRepository.UserExists(userId))
                 return NotFound();
 
-            var shoppingList = _mapper.Map<List<ShoppingListDto>>(_userRepository.GetUserShoppingList(userId));
+            var shoppingLists = _mapper.Map<List<ShoppingListDto>>(_userRepository.GetUserShoppingList(userId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(shoppingList);
+            return Ok(shoppingLists);
+        }
+
+        [HttpGet("{userId}/planners")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ShoppingList>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetUserPlanners(int userId)
+        {
+            if (!_userRepository.UserExists(userId))
+                return NotFound();
+
+            var planners = _mapper.Map<List<Planner>>(_userRepository.GetUserPlanners(userId));
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(planners);
         }
 
         [HttpPost]
@@ -146,21 +188,109 @@ namespace culinaryApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            /*var user = _userRepository.GetUsers()
-               .Where(x => x.Email == updateUser.Email)
-               .FirstOrDefault();
+            var user = _userRepository.GetUserByEmail(updateUser.Email);
 
-            if (user != null)
+            if (user is not null)
             {
                 ModelState.AddModelError("", "There is a user with this e-mail");
                 return StatusCode(422, ModelState);
-            }*/
+            }
 
             var userMap = _mapper.Map<User>(updateUser);
 
             if (!_userRepository.UpdateUser(userMap))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{userId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteUser(int userId)
+        {
+            if (!_userRepository.UserExists(userId))
+                return NotFound();
+
+            var userToDelete = _userRepository.GetUser(userId);
+
+            var recipesToDelete = _userRepository.GetUserRecipes(userId);
+            var stepsFromRecipesToDelete = _recipeRepository.GetRecipesSteps(recipesToDelete);
+            var commentsFromRecipeToDelete = _recipeRepository.GetRecipesComments(recipesToDelete);
+            var productsFromRecipeToDelete = _recipeRepository.GetRecipesProducts(recipesToDelete);
+
+            if (productsFromRecipeToDelete.Count() > 0 && !_productFromRecipeRepository.DeleteProductsFromRecipe(productsFromRecipeToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (commentsFromRecipeToDelete.Count() > 0 && !_commentRepository.DeleteUserComments(commentsFromRecipeToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (stepsFromRecipesToDelete.Count() > 0 && !_stepRepository.DeleteSteps(stepsFromRecipesToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (recipesToDelete.Count() > 0 && !_recipeRepository.DeleteRecipes(recipesToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            var commentsToDelete = _userRepository.GetUserComments(userId);
+
+            if (commentsToDelete.Count() > 0 && !_commentRepository.DeleteUserComments(commentsToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            var plannersToDelete = _userRepository.GetUserPlanners(userId);
+            var productFromPlannersToDelete = _plannerRepository.GetPlannersProducts(plannersToDelete);
+
+            if (plannersToDelete.Count() > 0 && !_plannerRepository.DeletePlanners(plannersToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (productFromPlannersToDelete.Count() > 0 && !_productFromPlannerRepository.DeleteProductsFromPlanner(productFromPlannersToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            var shoppingListToDelete = _userRepository.GetUserShoppingList(userId);
+            var productFromListToDelete = _shoppingListRepository.GetProductsFromLists(shoppingListToDelete);
+
+            if (shoppingListToDelete.Count() > 0 && !_shoppingListRepository.DeleteShoppingLists(shoppingListToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (productFromListToDelete.Count() > 0 && !_productFromListRepository.DeleteProductsFromList(productFromListToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_userRepository.DeleteUser(userToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);
             }
 
