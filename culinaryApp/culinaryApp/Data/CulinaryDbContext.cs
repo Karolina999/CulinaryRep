@@ -16,6 +16,7 @@ namespace culinaryApp.Data
         public DbSet<Step> Steps { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserComment> UserComments { get; set; }
+        public DbSet<WatchedRecipe> WatchedRecipes { get; set; }
         public CulinaryDbContext(DbContextOptions<CulinaryDbContext> options) :base(options)
         { }
 

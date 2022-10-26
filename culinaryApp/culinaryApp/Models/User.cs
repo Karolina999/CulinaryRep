@@ -9,7 +9,7 @@
         public string? Password { get; set; }
         public string? ImageUrl { get; set; }
         public ICollection<Recipe>? Recipes { get; set; }
-        public ICollection<WatchedRecipes>? WatchedRecipes { get; set; }
+        public ICollection<WatchedRecipe>? WatchedRecipes { get; set; }
 
         /*public ICollection<Recipe>? OwnRecipes { get; set; }*/
         /*public ICollection<UserComment>? Comments { get; set; }*/

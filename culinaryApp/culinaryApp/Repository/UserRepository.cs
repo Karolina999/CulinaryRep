@@ -60,6 +60,23 @@ namespace culinaryApp.Repository
             return _context.ShoppingLists.Where(x => x.User.Id == userId).ToList();
         }
 
+        public ICollection<Recipe> GetUserWatchedRecipes(int userId)
+        {
+            var watchedRecipes = _context.WatchedRecipes.Where(x => x.UserId == userId).ToList();
+            var recipes = new List<Recipe>();
+            foreach (var watchedRecipe in watchedRecipes)
+            {
+                recipes.Add(_context.Recipes.Where(x => x.Id == watchedRecipe.RecipeId).FirstOrDefault());
+            }
+
+            return recipes;
+        }
+
+        public ICollection<WatchedRecipe> GetUserWatched(int userId)
+        {
+            return _context.WatchedRecipes.Where(x => x.UserId == userId).ToList();
+        }
+
         public bool Save()
         {
             var saved = _context.SaveChanges();

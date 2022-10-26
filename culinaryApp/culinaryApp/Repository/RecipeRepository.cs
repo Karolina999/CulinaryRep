@@ -101,6 +101,21 @@ namespace culinaryApp.Repository
             return _context.Steps.Where(x => x.Recipe.Id == recipeId).OrderBy(x => x.StepNumber).ToList();
         }
 
+        public ICollection<WatchedRecipe> GetWatchedRecipes(int recipeId)
+        {
+            return _context.WatchedRecipes.Where(x => x.Recipe.Id == recipeId).ToList();
+        }
+
+        public ICollection<WatchedRecipe> GetWatchedRecipesList(ICollection<Recipe> recipes)
+        {
+            var watchedRecipes = new List<WatchedRecipe>();
+            foreach (var recipe in recipes)
+            {
+                watchedRecipes.AddRange(_context.WatchedRecipes.Where(x => x.Recipe.Id == recipe.Id).ToList());
+            }
+            return watchedRecipes;
+        }
+
         public bool RecipeExists(int recipeId)
         {
             return _context.Recipes.Any(x => x.Id == recipeId);

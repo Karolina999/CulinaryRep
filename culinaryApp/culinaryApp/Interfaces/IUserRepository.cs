@@ -11,6 +11,8 @@ namespace culinaryApp.Interfaces
         ICollection<Planner> GetUserPlanners(int userId);
         ICollection<ShoppingList> GetUserShoppingList(int userId);
         ICollection<UserComment> GetUserComments(int userId);
+        ICollection<WatchedRecipe> GetUserWatched(int userId);
+        ICollection<Recipe> GetUserWatchedRecipes(int userId);
         bool UserExists(int userId);
         bool CreateUser(User user);
         bool UpdateUser(User user);

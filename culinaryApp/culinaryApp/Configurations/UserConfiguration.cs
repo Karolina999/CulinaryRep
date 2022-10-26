@@ -37,7 +37,7 @@ namespace culinaryApp.Configurations
             builder
             .HasMany(u => u.Recipes)
             .WithMany(r => r.Watchers)
-            .UsingEntity<WatchedRecipes>(
+            .UsingEntity<WatchedRecipe>(
                 x =>
                     x.HasOne(y => y.Recipe)
                         .WithMany(y => y.WatchedRecipes)

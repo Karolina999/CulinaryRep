@@ -12,7 +12,7 @@
         public RecipeType RecipeType { get; set; }
         public User? Owner { get; set; }
         public ICollection<User>? Watchers { get; set; }
-        public ICollection<WatchedRecipes>? WatchedRecipes { get; set; }
+        public ICollection<WatchedRecipe>? WatchedRecipes { get; set; }
         public ICollection<Planner>? Planners { get; set; }
         public ICollection<PlannerRecipe>? PlannerRecipe { get; set; }
 

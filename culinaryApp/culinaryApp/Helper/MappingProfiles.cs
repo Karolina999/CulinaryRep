@@ -40,6 +40,9 @@ namespace culinaryApp.Helper
 
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
+
+            CreateMap<WatchedRecipe, WatchedRecipeDto>();
+            CreateMap<WatchedRecipeDto, WatchedRecipe>();
         }
     }
 }

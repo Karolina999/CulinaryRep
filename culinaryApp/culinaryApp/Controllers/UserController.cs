@@ -19,6 +19,7 @@ namespace culinaryApp.Controllers
         private readonly IProductFromPlannerRepository _productFromPlannerRepository;
         private readonly IShoppingListRepository _shoppingListRepository;
         private readonly IProductFromListRepository _productFromListRepository;
+        private readonly IWatchedRecipeRepository _watchedRecipeRepository;
         private readonly IMapper _mapper;
 
         public UserController(
@@ -31,6 +32,7 @@ namespace culinaryApp.Controllers
             IProductFromPlannerRepository productFromPlannerRepository,
             IShoppingListRepository shoppingListRepository,
             IProductFromListRepository productFromListRepository,
+            IWatchedRecipeRepository watchedRecipeRepository,
             IMapper mapper)
         {
             _userRepository = userRepository;
@@ -42,6 +44,7 @@ namespace culinaryApp.Controllers
             _productFromPlannerRepository = productFromPlannerRepository;
             _shoppingListRepository = shoppingListRepository;
             _productFromListRepository = productFromListRepository;
+            _watchedRecipeRepository = watchedRecipeRepository;
             _mapper = mapper;
         }
 
@@ -137,6 +140,22 @@ namespace culinaryApp.Controllers
             return Ok(planners);
         }
 
+        [HttpGet("{userId}/watchedRecipes")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Recipe>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetWatchedRecipes(int userId)
+        {
+            if (!_userRepository.UserExists(userId))
+                return NotFound();
+
+            var watchedRecipes = _mapper.Map<List<RecipeDto>>(_userRepository.GetUserWatchedRecipes(userId));
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(watchedRecipes);
+        }
+
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -222,6 +241,14 @@ namespace culinaryApp.Controllers
             var stepsFromRecipesToDelete = _recipeRepository.GetRecipesSteps(recipesToDelete);
             var commentsFromRecipeToDelete = _recipeRepository.GetRecipesComments(recipesToDelete);
             var productsFromRecipeToDelete = _recipeRepository.GetRecipesProducts(recipesToDelete);
+
+            var watchedRecipesToDelete = _userRepository.GetUserWatched(userId);
+
+            if (watchedRecipesToDelete.Count() > 0 && !_watchedRecipeRepository.DeleteWatchedRecipes(watchedRecipesToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
 
             if (productsFromRecipeToDelete.Count() > 0 && !_productFromRecipeRepository.DeleteProductsFromRecipe(productsFromRecipeToDelete))
             {

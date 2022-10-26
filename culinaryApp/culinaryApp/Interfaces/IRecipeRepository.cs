@@ -13,6 +13,8 @@ namespace culinaryApp.Interfaces
         ICollection<ProductFromRecipe> GetRecipesProducts(ICollection<Recipe> recipes);
         ICollection<UserComment> GetRecipeComments(int recipeId);
         ICollection<UserComment> GetRecipesComments(ICollection<Recipe> recipes);
+        ICollection<WatchedRecipe> GetWatchedRecipes(int recipeId);
+        ICollection<WatchedRecipe> GetWatchedRecipesList(ICollection<Recipe> recipes);
         decimal GetRecipeRating(int recipeId);
         bool RecipeExists(int recipeId);
         bool CreateRecipe(Recipe recipe);

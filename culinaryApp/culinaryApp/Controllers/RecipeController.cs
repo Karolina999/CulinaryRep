@@ -15,6 +15,7 @@ namespace culinaryApp.Controllers
         private readonly IStepRepository _stepRepository;
         private readonly IProductFromRecipeRepository _productRepository;
         private readonly IUserCommentRepository _commentRepository;
+        private readonly IWatchedRecipeRepository _watchedRecipeRepository;
         private readonly IMapper _mapper;
 
         public RecipeController(IRecipeRepository recipeRepository,
@@ -22,6 +23,7 @@ namespace culinaryApp.Controllers
             IStepRepository stepRepository,
             IProductFromRecipeRepository productRepository,
             IUserCommentRepository commentRepository,
+            IWatchedRecipeRepository watchedRecipeRepository,
             IMapper mapper)
         {
             _recipeRepository = recipeRepository;
@@ -29,6 +31,7 @@ namespace culinaryApp.Controllers
             _stepRepository = stepRepository;
             _productRepository = productRepository;
             _commentRepository = commentRepository;
+            _watchedRecipeRepository = watchedRecipeRepository;
             _mapper = mapper;
         }
 
@@ -175,9 +178,16 @@ namespace culinaryApp.Controllers
             var stepsToDelete = _recipeRepository.GetRecipeSteps(recipeId);
             var productsToDelete = _recipeRepository.GetRecipeProducts(recipeId);
             var commentsToDelete = _recipeRepository.GetRecipeComments(recipeId);
+            var watchedRecipesToDelete = _recipeRepository.GetWatchedRecipes(recipeId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (watchedRecipesToDelete.Count() > 0 && !_watchedRecipeRepository.DeleteWatchedRecipes(watchedRecipesToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
 
             if (stepsToDelete.Count() > 0 && !_stepRepository.DeleteSteps(stepsToDelete))
             {
