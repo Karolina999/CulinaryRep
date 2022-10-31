@@ -20,6 +20,7 @@ namespace culinaryApp.Controllers
         private readonly IShoppingListRepository _shoppingListRepository;
         private readonly IProductFromListRepository _productFromListRepository;
         private readonly IWatchedRecipeRepository _watchedRecipeRepository;
+        private readonly IPlannerRecipeRepository _plannerRecipeRepository;
         private readonly IMapper _mapper;
 
         public UserController(
@@ -33,6 +34,7 @@ namespace culinaryApp.Controllers
             IShoppingListRepository shoppingListRepository,
             IProductFromListRepository productFromListRepository,
             IWatchedRecipeRepository watchedRecipeRepository,
+            IPlannerRecipeRepository plannerRecipeRepository,
             IMapper mapper)
         {
             _userRepository = userRepository;
@@ -45,6 +47,7 @@ namespace culinaryApp.Controllers
             _shoppingListRepository = shoppingListRepository;
             _productFromListRepository = productFromListRepository;
             _watchedRecipeRepository = watchedRecipeRepository;
+            _plannerRecipeRepository = plannerRecipeRepository;
             _mapper = mapper;
         }
 
@@ -241,10 +244,17 @@ namespace culinaryApp.Controllers
             var stepsFromRecipesToDelete = _recipeRepository.GetRecipesSteps(recipesToDelete);
             var commentsFromRecipeToDelete = _recipeRepository.GetRecipesComments(recipesToDelete);
             var productsFromRecipeToDelete = _recipeRepository.GetRecipesProducts(recipesToDelete);
+            var plannerRecipeFromRecipeToDelete = _recipeRepository.GetPlannerRecipeList(recipesToDelete);
 
             var watchedRecipesToDelete = _userRepository.GetUserWatched(userId);
 
             if (watchedRecipesToDelete.Count() > 0 && !_watchedRecipeRepository.DeleteWatchedRecipes(watchedRecipesToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (plannerRecipeFromRecipeToDelete.Count() > 0 && !_plannerRecipeRepository.DeletePlannerRecipes(plannerRecipeFromRecipeToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);
@@ -284,14 +294,21 @@ namespace culinaryApp.Controllers
 
             var plannersToDelete = _userRepository.GetUserPlanners(userId);
             var productFromPlannersToDelete = _plannerRepository.GetPlannersProducts(plannersToDelete);
+            var plannerRecipesToDelete = _plannerRepository.GetPlannersRecipes(plannersToDelete);
 
-            if (plannersToDelete.Count() > 0 && !_plannerRepository.DeletePlanners(plannersToDelete))
+            if (productFromPlannersToDelete.Count() > 0 && !_productFromPlannerRepository.DeleteProductsFromPlanner(productFromPlannersToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);
             }
 
-            if (productFromPlannersToDelete.Count() > 0 && !_productFromPlannerRepository.DeleteProductsFromPlanner(productFromPlannersToDelete))
+            if (plannerRecipesToDelete.Count() > 0 && !_plannerRecipeRepository.DeletePlannerRecipes(plannerRecipesToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (plannersToDelete.Count() > 0 && !_plannerRepository.DeletePlanners(plannersToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);

@@ -8,50 +8,50 @@ namespace culinaryApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WatchedRecipeController : ControllerBase
+    public class PlannerRecipeController : ControllerBase
     {
-        private readonly IWatchedRecipeRepository _watchedRecipeRepository;
+        private readonly IPlannerRecipeRepository _plannerRecipeRepository;
         private readonly IMapper _mapper;
 
-        public WatchedRecipeController(IWatchedRecipeRepository watchedRecipeRepository, IMapper mapper)
+        public PlannerRecipeController(IPlannerRecipeRepository plannerRecipeRepository, IMapper mapper)
         {
-            _watchedRecipeRepository = watchedRecipeRepository;
+            _plannerRecipeRepository = plannerRecipeRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<WatchedRecipe>))]
-        public IActionResult GetWatchedRecipes()
+        [ProducesResponseType(200, Type = typeof(IEnumerable<PlannerRecipe>))]
+        public IActionResult GePlannersRecipes()
         {
-            var watchedRecipes = _mapper.Map<List<WatchedRecipeDto>>(_watchedRecipeRepository.GetWatchedRecipes());
+            var plannersRecipes = _mapper.Map<List<PlannerRecipeDto>>(_plannerRecipeRepository.GetPlannerRecipes());
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(watchedRecipes);
+            return Ok(plannersRecipes);
         }
 
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateWatchedRecipes([FromQuery] int recipeId, [FromQuery] int userId)
+        public IActionResult CreateWatchedRecipes([FromQuery] int recipeId, [FromQuery] int plannerId)
         {
 
-            var watchedRecipe = _watchedRecipeRepository.GetWatchedRecipes()
-                .Where(x => x.UserId == userId)
+            var plannerRecipe = _plannerRecipeRepository.GetPlannerRecipes()
+                .Where(x => x.PlannerId == plannerId)
                 .Where(x => x.RecipeId == recipeId)
                 .FirstOrDefault();
 
-            if (watchedRecipe != null)
+            if (plannerRecipe != null)
             {
-                ModelState.AddModelError("", "Watched Recipe already exists");
+                ModelState.AddModelError("", "Planner Recipe already exists");
                 return StatusCode(422, ModelState);
             }
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_watchedRecipeRepository.CreateWatchedRecipe(recipeId, userId))
+            if (!_plannerRecipeRepository.CreatePlannerRecipe(recipeId, plannerId))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -65,17 +65,17 @@ namespace culinaryApp.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteWatchedRecipe(int recipeId, int userId)
+        public IActionResult DeletePlannerRecipe(int recipeId, int plannerId)
         {
-            if (!_watchedRecipeRepository.WatchedRecipeExists(recipeId, userId))
+            if (!_plannerRecipeRepository.PlannerRecipeExists(recipeId, plannerId))
                 return NotFound();
 
-            var watchedRecipeToDelete = _watchedRecipeRepository.GetWatchedRecipe(recipeId, userId);
+            var plannerRecipeToDelete = _plannerRecipeRepository.GetPlannerRecipe(recipeId, plannerId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_watchedRecipeRepository.DeleteWatchedRecipe(watchedRecipeToDelete))
+            if (!_plannerRecipeRepository.DeletePlannerRecipe(plannerRecipeToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);

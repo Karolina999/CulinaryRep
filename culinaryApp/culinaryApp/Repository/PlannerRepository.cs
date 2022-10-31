@@ -41,6 +41,11 @@ namespace culinaryApp.Repository
             return _context.ProductFromPlanners.Where(x => x.Planner.Id == plannerId).ToList();
         }
 
+        public ICollection<PlannerRecipe> GetPlannerRecipes(int plannerId)
+        {
+            return _context.PlannerRecipes.Where(x => x.PlannerId == plannerId).ToList();
+        }
+
         public ICollection<Planner> GetPlanners()
         {
             return _context.Planners.OrderBy(x => x.Id).ToList();
@@ -54,6 +59,16 @@ namespace culinaryApp.Repository
                 products.AddRange(_context.ProductFromPlanners.Where(x => x.Planner.Id == planner.Id).ToList());
             }
             return products;
+        }
+
+        public ICollection<PlannerRecipe> GetPlannersRecipes(ICollection<Planner> planners)
+        {
+            var plannerRecipes = new List<PlannerRecipe>();
+            foreach (var planner in planners)
+            {
+                plannerRecipes.AddRange(_context.PlannerRecipes.Where(x => x.PlannerId == planner.Id).ToList());
+            }
+            return plannerRecipes;
         }
 
         public bool PlannerExists(int plannerId)

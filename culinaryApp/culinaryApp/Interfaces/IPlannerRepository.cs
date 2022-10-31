@@ -5,9 +5,11 @@ namespace culinaryApp.Interfaces
     public interface IPlannerRepository
     {
         ICollection<Planner> GetPlanners();
+        Planner GetPlanner(int id);
         ICollection<ProductFromPlanner> GetPlannerProducts(int plannerId);
         ICollection<ProductFromPlanner> GetPlannersProducts(ICollection<Planner> planners);
-        Planner GetPlanner(int id);
+        ICollection<PlannerRecipe> GetPlannerRecipes(int plannerId);
+        ICollection<PlannerRecipe> GetPlannersRecipes(ICollection<Planner> planners);
         bool PlannerExists(int plannerId);
         bool CreatePlanner(Planner planner);
         bool UpdatePlanner(Planner planner);

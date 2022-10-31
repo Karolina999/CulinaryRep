@@ -21,6 +21,7 @@ builder.Services.AddScoped<IStepRepository, StepRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserCommentRepository, UserCommentRepository>();
 builder.Services.AddScoped<IWatchedRecipeRepository, WatchedRecipeRepository>();
+builder.Services.AddScoped<IPlannerRecipeRepository, PlannerRecipeRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

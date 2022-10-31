@@ -16,6 +16,7 @@ namespace culinaryApp.Controllers
         private readonly IProductFromRecipeRepository _productRepository;
         private readonly IUserCommentRepository _commentRepository;
         private readonly IWatchedRecipeRepository _watchedRecipeRepository;
+        private readonly IPlannerRecipeRepository _plannerRecipeRepository;
         private readonly IMapper _mapper;
 
         public RecipeController(IRecipeRepository recipeRepository,
@@ -24,6 +25,7 @@ namespace culinaryApp.Controllers
             IProductFromRecipeRepository productRepository,
             IUserCommentRepository commentRepository,
             IWatchedRecipeRepository watchedRecipeRepository,
+            IPlannerRecipeRepository plannerRecipeRepository,
             IMapper mapper)
         {
             _recipeRepository = recipeRepository;
@@ -32,6 +34,7 @@ namespace culinaryApp.Controllers
             _productRepository = productRepository;
             _commentRepository = commentRepository;
             _watchedRecipeRepository = watchedRecipeRepository;
+            _plannerRecipeRepository = plannerRecipeRepository;
             _mapper = mapper;
         }
 
@@ -179,9 +182,16 @@ namespace culinaryApp.Controllers
             var productsToDelete = _recipeRepository.GetRecipeProducts(recipeId);
             var commentsToDelete = _recipeRepository.GetRecipeComments(recipeId);
             var watchedRecipesToDelete = _recipeRepository.GetWatchedRecipes(recipeId);
+            var plannerRecipesToDelete = _recipeRepository.GetPlannerRecipes(recipeId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (plannerRecipesToDelete.Count() > 0 && !_plannerRecipeRepository.DeletePlannerRecipes(plannerRecipesToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
 
             if (watchedRecipesToDelete.Count() > 0 && !_watchedRecipeRepository.DeleteWatchedRecipes(watchedRecipesToDelete))
             {
