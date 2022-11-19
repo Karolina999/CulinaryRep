@@ -3,6 +3,8 @@ using culinaryApp.Models;
 using culinaryApp.Interfaces;
 using AutoMapper;
 using culinaryApp.Dto;
+using culinaryApp.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace culinaryApp.Controllers
 {
@@ -22,6 +24,7 @@ namespace culinaryApp.Controllers
         private readonly IWatchedRecipeRepository _watchedRecipeRepository;
         private readonly IPlannerRecipeRepository _plannerRecipeRepository;
         private readonly IMapper _mapper;
+        private readonly IAuth _auth;
 
         public UserController(
             IUserRepository userRepository,
@@ -35,6 +38,7 @@ namespace culinaryApp.Controllers
             IProductFromListRepository productFromListRepository,
             IWatchedRecipeRepository watchedRecipeRepository,
             IPlannerRecipeRepository plannerRecipeRepository,
+            IAuth auth,
             IMapper mapper)
         {
             _userRepository = userRepository;
@@ -49,6 +53,23 @@ namespace culinaryApp.Controllers
             _watchedRecipeRepository = watchedRecipeRepository;
             _plannerRecipeRepository = plannerRecipeRepository;
             _mapper = mapper;
+            _auth = auth;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("SignIn")]
+        public ActionResult Login(UserLoginDto userLoginDto)
+        {
+            var user = _userRepository.LoginUser(userLoginDto.Login, userLoginDto.Password);
+            if (user == null)
+                return Problem("Wrong password or login");
+
+            var token = _auth.Authentication(user);
+            HttpContext.Response.Headers.Add("jwt", token);
+
+            var userDto = _mapper.Map<UserDto>(user);
+
+            return Ok(userDto);
         }
 
         [HttpGet]
@@ -170,17 +191,18 @@ namespace culinaryApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = _userRepository.GetUsers()
+            var userWithEmail = _userRepository.GetUsers()
                 .Where(x => x.Email == userCreate.Email)
                 .FirstOrDefault();
 
-            if (user != null)
+            if (userWithEmail is not null)
             {
                 ModelState.AddModelError("", "There is a user with this e-mail");
                 return StatusCode(422, ModelState);
             }
 
             var userMap = _mapper.Map<User>(userCreate);
+            userMap.Password = BCrypt.Net.BCrypt.HashPassword(userCreate.Password);
 
             if (!_userRepository.CreateUser(userMap))
             {
@@ -192,12 +214,15 @@ namespace culinaryApp.Controllers
 
         }
 
+        [Authorize]
         [HttpPut("{userId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateUser(int userId, [FromBody] UserDto updateUser)
+        public IActionResult UpdateUser([FromBody] UserDto updateUser)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (updateUser == null)
                 return BadRequest(ModelState);
 
@@ -210,15 +235,23 @@ namespace culinaryApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var user = _userRepository.GetUserByEmail(updateUser.Email);
+            var user = _userRepository.GetUser(userId);
 
-            if (user is not null)
+            var userWithEmail = _userRepository.GetUserByEmail(updateUser.Email);
+
+            if (userWithEmail is not null && userWithEmail?.Id != user.Id)
             {
                 ModelState.AddModelError("", "There is a user with this e-mail");
                 return StatusCode(422, ModelState);
             }
+            
+            user.FirstName = updateUser.FirstName;
+            user.LastName = updateUser.LastName;
+            user.Email = updateUser.Email;
+            user.Password = BCrypt.Net.BCrypt.HashPassword(updateUser.Password);
+            user.ImageUrl = updateUser.ImageUrl;
 
-            var userMap = _mapper.Map<User>(updateUser);
+            var userMap = _mapper.Map<User>(user);
 
             if (!_userRepository.UpdateUser(userMap))
             {

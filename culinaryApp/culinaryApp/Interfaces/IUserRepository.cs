@@ -6,7 +6,7 @@ namespace culinaryApp.Interfaces
     {
         ICollection<User> GetUsers();
         User GetUser(int id);
-        User GetUserByEmail(string email);
+        User? GetUserByEmail(string email);
         ICollection<Recipe> GetUserRecipes(int userId);
         ICollection<Planner> GetUserPlanners(int userId);
         ICollection<ShoppingList> GetUserShoppingList(int userId);
@@ -18,5 +18,6 @@ namespace culinaryApp.Interfaces
         bool UpdateUser(User user);
         bool DeleteUser(User user);
         bool Save();
+        public User? LoginUser(string login, string password);
     }
 }

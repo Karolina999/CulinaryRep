@@ -1,6 +1,7 @@
 ﻿using culinaryApp.Data;
 using culinaryApp.Interfaces;
 using culinaryApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace culinaryApp.Repository
 {
@@ -30,8 +31,9 @@ namespace culinaryApp.Repository
             return _context.Users.FirstOrDefault(x => x.Id == id);
         }
 
-        public User GetUserByEmail(string email)
+        public User? GetUserByEmail(string email)
         {
+            //return _context.Users.AsNoTrackingWithIdentityResolution().FirstOrDefault(x => x.Email == email);
             return _context.Users.FirstOrDefault(x => x.Email == email);
         }
 
@@ -92,6 +94,19 @@ namespace culinaryApp.Repository
         public bool UserExists(int userId)
         {
             return _context.Users.Any(x => x.Id == userId);
+        }
+
+        public User? LoginUser(string login, string password)
+        {
+            var result = _context.Users.FirstOrDefault(x => x.Email == login);
+            if (result is null)
+                return result;
+            var isValidPassword = BCrypt.Net.BCrypt.Verify(password, result.Password);
+            if (isValidPassword)
+            {
+                return result;
+            } 
+            return null;
         }
     }
 }
