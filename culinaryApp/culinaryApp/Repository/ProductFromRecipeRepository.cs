@@ -19,6 +19,12 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool CreateProductsFromRecipe(ICollection<ProductFromRecipe> productsFromRecipe)
+        {
+            _context.AddRange(productsFromRecipe);
+            return Save();
+        }
+
         public bool DeleteProductFromRecipe(ProductFromRecipe productFromRecipe)
         {
             _context.Remove(productFromRecipe);
@@ -29,6 +35,11 @@ namespace culinaryApp.Repository
         {
             _context.RemoveRange(productsFromRecipe);
             return Save();
+        }
+
+        public Ingredient GetIngredientFromProduct(int ingrednientId)
+        {
+            return _context.Ingredients.Where(x => x.Id == ingrednientId).FirstOrDefault();
         }
 
         public ProductFromRecipe GetProduct(int id)

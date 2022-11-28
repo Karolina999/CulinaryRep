@@ -1,4 +1,5 @@
 ﻿using culinaryApp.Data;
+using culinaryApp.Dto;
 using culinaryApp.Interfaces;
 using culinaryApp.Models;
 
@@ -51,6 +52,12 @@ namespace culinaryApp.Repository
             return _context.Recipes.FirstOrDefault(x => x.Id == id);
         }
 
+        public User GetRecipeAuthor(int userId)
+        {
+            var user = _context.Users.Where(x => x.Id == userId).FirstOrDefault();
+            return user;
+        }
+
         public ICollection<UserComment> GetRecipeComments(int recipeId)
         {
             return _context.UserComments.Where(x => x.Recipe.Id == recipeId).ToList();
@@ -61,14 +68,23 @@ namespace culinaryApp.Repository
             return _context.ProductFromRecipes.Where(x => x.Recipe.Id == recipeId).ToList();
         }
 
-        public decimal GetRecipeRating(int recipeId)
+        public RatingDto GetRecipeRating(int recipeId)
         {
             var review = _context.UserComments.Where(x => x.Recipe.Id == recipeId);
+            
+            RatingDto rating = new RatingDto()
+            {
+                Rating = 0,
+                NumberOfReviews = 0,
+            };
 
             if (review.Count() <= 0)
-                return 0;
+                return rating;
 
-            return ((decimal)review.Sum(x => x.Rating) / review.Count());
+            rating.Rating = (decimal)review.Sum(x => x.Rating) / review.Count();
+            rating.NumberOfReviews = review.Count();
+
+            return rating;
         }
 
         public ICollection<Recipe> GetRecipes()

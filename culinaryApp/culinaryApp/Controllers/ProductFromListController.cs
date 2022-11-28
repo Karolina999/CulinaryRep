@@ -130,5 +130,35 @@ namespace culinaryApp.Controllers
             return NoContent();
 
         }
+
+        [HttpDelete("productsFromList")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteProductsFromList(int[] productsFromListId)
+        {
+            var productsFromListToDelete = new List<ProductFromList>();
+
+            foreach (var productFromListId in productsFromListId)
+            {
+                if (!_productRepository.ProductExists(productFromListId))
+                    return NotFound();
+
+                var productToDelete = _productRepository.GetProduct(productFromListId);
+                productsFromListToDelete.Add(productToDelete);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_productRepository.DeleteProductsFromList(productsFromListToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
+        }
     }
 }

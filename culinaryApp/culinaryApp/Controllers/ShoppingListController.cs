@@ -3,6 +3,7 @@ using culinaryApp.Models;
 using culinaryApp.Interfaces;
 using AutoMapper;
 using culinaryApp.Dto;
+using Microsoft.AspNetCore.Authorization;
 
 namespace culinaryApp.Controllers
 {
@@ -35,6 +36,7 @@ namespace culinaryApp.Controllers
             return Ok(shoppingList);
         }
 
+        [Authorize]
         [HttpGet("{shoppingListId}")]
         [ProducesResponseType(200, Type = typeof(ShoppingList))]
         [ProducesResponseType(400)]
@@ -48,9 +50,15 @@ namespace culinaryApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
+            if (shoppingList.UserId != userId)
+                return Forbid();
+
             return Ok(shoppingList);
         }
 
+        [Authorize]
         [HttpGet("{shoppingListId}/products")]
         [ProducesResponseType(200, Type = typeof(ProductFromList))]
         [ProducesResponseType(400)]
@@ -59,7 +67,19 @@ namespace culinaryApp.Controllers
             if (!_shoppingListRepository.ShoppingListExists(shoppingListId))
                 return NotFound();
 
-            var products = _mapper.Map<ICollection<ProductFromListDto>>(_shoppingListRepository.GetProductsFromList(shoppingListId));
+            var shoppingList = _mapper.Map<ShoppingListDto>(_shoppingListRepository.GetShoppingList(shoppingListId));
+
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
+            if (shoppingList.UserId != userId)
+                return Forbid();
+
+            var products = _mapper.Map<ICollection<ProductFromListGetDto>>(_shoppingListRepository.GetProductsFromList(shoppingListId));
+
+            foreach (var product in products)
+            {
+                product.Ingredient = _productRepository.GetIngredientFromProduct(product.IngredientId);
+            }
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -67,11 +87,14 @@ namespace culinaryApp.Controllers
             return Ok(products);
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateShoppingList([FromQuery] int userId, [FromBody] ShoppingListDto shoppingList)
+        public IActionResult CreateShoppingList([FromBody] ShoppingListDto shoppingList)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (shoppingList == null)
                 return BadRequest(ModelState);
 
@@ -92,6 +115,7 @@ namespace culinaryApp.Controllers
 
         }
 
+        [Authorize]
         [HttpPut("{shoppingListId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -107,6 +131,13 @@ namespace culinaryApp.Controllers
             if (!_shoppingListRepository.ShoppingListExists(shoppingListId))
                 return NotFound();
 
+            var shoppingList = _mapper.Map<ShoppingListDto>(_shoppingListRepository.GetShoppingList(shoppingListId));
+
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
+            if (shoppingList.UserId != userId)
+                return Forbid();
+
             if (!ModelState.IsValid)
                 return BadRequest();
 
@@ -121,6 +152,7 @@ namespace culinaryApp.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{shoppingListId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -136,6 +168,11 @@ namespace culinaryApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
+            if (shoppingListToDelete.UserId != userId)
+                return Forbid();
+
             if (productToDelete.Count() > 0 && !_productRepository.DeleteProductsFromList(productToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
@@ -143,6 +180,51 @@ namespace culinaryApp.Controllers
             }
 
             if (!_shoppingListRepository.DeleteShoppingList(shoppingListToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+
+        }
+
+        [Authorize]
+        [HttpDelete("shoppingLists")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteShoppingLists(int[] shoppingListsId)
+        {
+            var shoppingListsToDelete = new List<ShoppingList>();
+            var productsToDelete = new List<ProductFromList>();
+
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
+            foreach (var shoppingListId in shoppingListsId)
+            {
+                if (!_shoppingListRepository.ShoppingListExists(shoppingListId))
+                    return NotFound();
+
+                var productToDelete = _shoppingListRepository.GetProductsFromList(shoppingListId);
+                productsToDelete.AddRange(productToDelete);
+                var shoppingListToDelete = _shoppingListRepository.GetShoppingList(shoppingListId);
+                shoppingListsToDelete.Add(shoppingListToDelete);
+
+                if (shoppingListToDelete.UserId != userId)
+                    return Forbid();
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (productsToDelete.Count() > 0 && !_productRepository.DeleteProductsFromList(productsToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
+                return StatusCode(500, ModelState);
+            }
+
+            if (!_shoppingListRepository.DeleteShoppingLists(shoppingListsToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);

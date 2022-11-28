@@ -132,11 +132,14 @@ namespace culinaryApp.Controllers
             return Ok(recipes);
         }
 
-        [HttpGet("{userId}/shoppingLists")]
+        [Authorize]
+        [HttpGet("shoppingLists")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ShoppingList>))]
         [ProducesResponseType(400)]
-        public IActionResult GetUserShoppingLists(int userId)
+        public IActionResult GetUserShoppingLists()
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (!_userRepository.UserExists(userId))
                 return NotFound();
 
@@ -180,6 +183,7 @@ namespace culinaryApp.Controllers
             return Ok(watchedRecipes);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -197,8 +201,7 @@ namespace culinaryApp.Controllers
 
             if (userWithEmail is not null)
             {
-                ModelState.AddModelError("", "There is a user with this e-mail");
-                return StatusCode(422, ModelState);
+                return Problem("There is a user with this e-mail");
             }
 
             var userMap = _mapper.Map<User>(userCreate);

@@ -6,6 +6,7 @@ namespace culinaryApp.Interfaces
     {
         ICollection<ProductFromList> GetProducts();
         ProductFromList GetProduct(int id);
+        Ingredient GetIngredientFromProduct(int ingrednientId);
         bool ProductExists(int productId);
         bool CreateProductFromList(ProductFromList productFromList);
         bool UpdateProductFromList(ProductFromList productFromList);

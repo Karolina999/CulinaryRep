@@ -6,8 +6,10 @@ namespace culinaryApp.Interfaces
     {
         ICollection<ProductFromRecipe> GetProducts();
         ProductFromRecipe GetProduct(int id);
+        Ingredient GetIngredientFromProduct(int ingrednientId);
         bool ProductExists(int productId);
         bool CreateProductFromRecipe(ProductFromRecipe productFromRecipe);
+        bool CreateProductsFromRecipe(ICollection<ProductFromRecipe> productsFromRecipe);
         bool UpdateProductFromRecipe(ProductFromRecipe productFromRecipe);
         bool DeleteProductFromRecipe(ProductFromRecipe productFromRecipe);
         bool DeleteProductsFromRecipe(ICollection<ProductFromRecipe> productsFromRecipe);

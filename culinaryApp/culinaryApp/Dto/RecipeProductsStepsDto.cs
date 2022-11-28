@@ -2,7 +2,7 @@
 
 namespace culinaryApp.Dto
 {
-    public class RecipeDto
+    public class RecipeProductsStepsDto
     {
         public int Id { get; set; }
         public string? Title { get; set; }
@@ -12,5 +12,8 @@ namespace culinaryApp.Dto
         public string? Photo { get; set; }
         public RecipeType RecipeType { get; set; }
         public int OwnerId { get; set; }
+        public ICollection<ProductFromRecipeCreateDto>? Products { get; set; }
+        public ICollection<StepDto>? Steps { get; set; }
+
     }
 }

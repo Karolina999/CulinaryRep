@@ -19,6 +19,12 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public bool CreateSteps(ICollection<Step> steps)
+        {
+            _context.AddRange(steps);
+            return Save();
+        }
+
         public bool DeleteStep(Step step)
         {
             _context.Remove(step);

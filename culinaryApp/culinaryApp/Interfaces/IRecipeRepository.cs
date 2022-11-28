@@ -1,4 +1,5 @@
-﻿using culinaryApp.Models;
+﻿using culinaryApp.Dto;
+using culinaryApp.Models;
 
 namespace culinaryApp.Interfaces
 {
@@ -11,13 +12,14 @@ namespace culinaryApp.Interfaces
         ICollection<Step> GetRecipesSteps(ICollection<Recipe> recipes);
         ICollection<ProductFromRecipe> GetRecipeProducts(int recipeId);
         ICollection<ProductFromRecipe> GetRecipesProducts(ICollection<Recipe> recipes);
+        User GetRecipeAuthor(int userId);
         ICollection<UserComment> GetRecipeComments(int recipeId);
         ICollection<UserComment> GetRecipesComments(ICollection<Recipe> recipes);
         ICollection<WatchedRecipe> GetWatchedRecipes(int recipeId);
         ICollection<WatchedRecipe> GetWatchedRecipesList(ICollection<Recipe> recipes);
         ICollection<PlannerRecipe> GetPlannerRecipes(int recipeId);
         ICollection<PlannerRecipe> GetPlannerRecipeList(ICollection<Recipe> recipes);
-        decimal GetRecipeRating(int recipeId);
+        RatingDto GetRecipeRating(int recipeId);
         bool RecipeExists(int recipeId);
         bool CreateRecipe(Recipe recipe);
         bool UpdateRecipe(Recipe recipe);

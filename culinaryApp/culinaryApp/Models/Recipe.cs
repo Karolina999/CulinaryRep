@@ -10,6 +10,7 @@
         public int People { get; set; }
         public string? Photo  { get; set; }
         public RecipeType RecipeType { get; set; }
+        public int OwnerId { get; set; }
         public User? Owner { get; set; }
         public ICollection<User>? Watchers { get; set; }
         public ICollection<WatchedRecipe>? WatchedRecipes { get; set; }
@@ -27,6 +28,6 @@
     }
     public enum RecipeType
     {
-        Dessert, Vegan, Drinks
+        Breakfast, Soup, Salad, Cake, Dessert, Pasta, MainCourse, Supper, Other
     }
 }

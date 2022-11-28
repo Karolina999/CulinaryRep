@@ -3,6 +3,7 @@ using culinaryApp.Models;
 using culinaryApp.Interfaces;
 using AutoMapper;
 using culinaryApp.Dto;
+using Microsoft.AspNetCore.Authorization;
 
 namespace culinaryApp.Controllers
 {
@@ -17,6 +18,7 @@ namespace culinaryApp.Controllers
         private readonly IUserCommentRepository _commentRepository;
         private readonly IWatchedRecipeRepository _watchedRecipeRepository;
         private readonly IPlannerRecipeRepository _plannerRecipeRepository;
+        private readonly IIngredientRepository _ingredientRepository;
         private readonly IMapper _mapper;
 
         public RecipeController(IRecipeRepository recipeRepository,
@@ -26,6 +28,7 @@ namespace culinaryApp.Controllers
             IUserCommentRepository commentRepository,
             IWatchedRecipeRepository watchedRecipeRepository,
             IPlannerRecipeRepository plannerRecipeRepository,
+            IIngredientRepository ingredientRepository,
             IMapper mapper)
         {
             _recipeRepository = recipeRepository;
@@ -35,6 +38,7 @@ namespace culinaryApp.Controllers
             _commentRepository = commentRepository;
             _watchedRecipeRepository = watchedRecipeRepository;
             _plannerRecipeRepository = plannerRecipeRepository;
+            _ingredientRepository = ingredientRepository;
             _mapper = mapper;
         }
 
@@ -66,8 +70,9 @@ namespace culinaryApp.Controllers
             return Ok(recipe);
         }
 
+
         [HttpGet("{recipeId}/rating")]
-        [ProducesResponseType(200, Type = typeof(decimal))]
+        [ProducesResponseType(200, Type = typeof(RatingDto))]
         [ProducesResponseType(400)]
         public IActionResult GetRecipeRating(int recipeId)
         {
@@ -114,11 +119,53 @@ namespace culinaryApp.Controllers
             return Ok(comments);
         }
 
+        [HttpGet("{recipeId}/products")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ProductFromRecipe>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetRecipeIngredients(int recipeId)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            var products = _mapper.Map<List<ProductFromRecipeGetDto>>(_recipeRepository.GetRecipeProducts(recipeId));
+
+            foreach (var product in products)
+            {
+                product.Ingredient = _productRepository.GetIngredientFromProduct(product.IngredientId);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(products);
+        }
+
+        [HttpGet("{recipeId}/author")]
+        [ProducesResponseType(200, Type = typeof(UserDto))]
+        [ProducesResponseType(400)]
+        public IActionResult GetRecipeAuthor(int recipeId)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            var recipe = _mapper.Map<RecipeDto>(_recipeRepository.GetRecipe(recipeId));
+
+            var author = _mapper.Map<UserDto>(_recipeRepository.GetRecipeAuthor(recipe.OwnerId));
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(author);
+        }
+
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateProductFromPlanner([FromQuery] int userId, [FromBody] RecipeDto recipeCreate)
+        public IActionResult CreateRecipe([FromBody] RecipeProductsStepsDto recipeCreate)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (recipeCreate == null)
                 return BadRequest(ModelState);
 
@@ -126,7 +173,7 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             var recipeMap = _mapper.Map<Recipe>(recipeCreate);
-
+            
             recipeMap.Owner = _userRepository.GetUser(userId);
 
             if (!_recipeRepository.CreateRecipe(recipeMap))
@@ -135,8 +182,46 @@ namespace culinaryApp.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            return Ok("Successfully created");
+            var productsFromRecipeToCreate = new List<ProductFromRecipe>();
+            var productsCreate = recipeCreate.Products;
 
+            if (productsCreate.Count() > 0)
+            {
+                foreach (var productCreate in productsCreate)
+                {
+                    var productMap = _mapper.Map<ProductFromRecipe>(productCreate);
+                    productMap.Ingredient = _ingredientRepository.GetIngredient(productCreate.IngredientId);
+                    productMap.Recipe = _recipeRepository.GetRecipe(recipeMap.Id);
+                    productsFromRecipeToCreate.Add(productMap);
+                }
+
+                if (!_productRepository.CreateProductsFromRecipe(productsFromRecipeToCreate))
+                {
+                    ModelState.AddModelError("", "Something went wrong while saving products");
+                    return StatusCode(500, ModelState);
+                }
+            }
+
+            var stepsToCreate = new List<Step>();
+            var stepsCreate = recipeCreate.Steps;
+
+            if (stepsCreate.Count() > 0)
+            {
+                foreach(var stepCreate in stepsCreate)
+                {
+                    var stepMap = _mapper.Map<Step>(stepCreate);
+                    stepMap.Recipe = _recipeRepository.GetRecipe(recipeMap.Id);
+                    stepsToCreate.Add(stepMap);
+                }
+
+                if (!_stepRepository.CreateSteps(stepsToCreate))
+                {
+                    ModelState.AddModelError("", "Something went wrong while saving steps");
+                    return StatusCode(500, ModelState);
+                }
+            }
+
+            return Ok("Successfully created");
         }
 
         [HttpPut("{recipeId}")]
