@@ -20,7 +20,7 @@ namespace culinaryApp.Configurations
 
             builder.HasOne(x => x.User)
                 .WithMany();
-
+/*
             builder
             .HasMany(u => u.Recipes)
             .WithMany(r => r.Planners)
@@ -35,7 +35,7 @@ namespace culinaryApp.Configurations
                         .WithMany(y => y.PlannerRecipes)
                         .HasForeignKey(y => y.PlannerId)
                         .OnDelete(DeleteBehavior.NoAction)
-                );
+                );*/
 
             /*
              Products

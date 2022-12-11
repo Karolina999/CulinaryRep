@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using culinaryApp.Data;
 
@@ -11,9 +12,10 @@ using culinaryApp.Data;
 namespace culinaryApp.Data.Migrations
 {
     [DbContext(typeof(CulinaryDbContext))]
-    partial class CulinaryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221211130437_idPlannerRecipe")]
+    partial class idPlannerRecipe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

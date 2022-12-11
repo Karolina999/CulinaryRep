@@ -7,5 +7,6 @@ namespace culinaryApp.Dto
         public int Id { get; set; }
         public Unit Unit { get; set; }
         public double Amount { get; set; }
+        public MealTypes MealType { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using culinaryApp.Data;
 
@@ -11,9 +12,10 @@ using culinaryApp.Data;
 namespace culinaryApp.Data.Migrations
 {
     [DbContext(typeof(CulinaryDbContext))]
-    partial class CulinaryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221204131239_mealTypes")]
+    partial class mealTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,7 +56,7 @@ namespace culinaryApp.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -66,24 +68,16 @@ namespace culinaryApp.Data.Migrations
 
             modelBuilder.Entity("culinaryApp.Models.PlannerRecipe", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("MealType")
-                        .HasColumnType("int");
-
                     b.Property<int>("PlannerId")
                         .HasColumnType("int");
 
                     b.Property<int>("RecipeId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<int>("MealType")
+                        .HasColumnType("int");
 
-                    b.HasIndex("PlannerId");
+                    b.HasKey("PlannerId", "RecipeId");
 
                     b.HasIndex("RecipeId");
 
@@ -131,12 +125,11 @@ namespace culinaryApp.Data.Migrations
                     b.Property<double>("Amount")
                         .HasColumnType("float");
 
-                    b.Property<int>("IngredientId")
+                    b.Property<int?>("IngredientId")
                         .HasColumnType("int");
 
-                    b.Property<string>("MealType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("MealType")
+                        .HasColumnType("int");
 
                     b.Property<int?>("PlannerId")
                         .HasColumnType("int");
@@ -358,9 +351,7 @@ namespace culinaryApp.Data.Migrations
                 {
                     b.HasOne("culinaryApp.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -405,9 +396,7 @@ namespace culinaryApp.Data.Migrations
                 {
                     b.HasOne("culinaryApp.Models.Ingredient", "Ingredient")
                         .WithMany()
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IngredientId");
 
                     b.HasOne("culinaryApp.Models.Planner", "Planner")
                         .WithMany()

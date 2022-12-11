@@ -5,6 +5,8 @@ namespace culinaryApp.Interfaces
     public interface IProductFromPlannerRepository
     {
         ICollection<ProductFromPlanner> GetProducts();
+        ICollection<ProductFromPlanner> GetPlannerProducts(int plannerId);
+        Ingredient GetIngredientFromProduct(int ingrednientId);
         ProductFromPlanner GetProduct(int id);
         bool ProductExists(int productId);
         bool CreateProductFromPlanner(ProductFromPlanner productFromPlanner);

@@ -3,6 +3,7 @@ using culinaryApp.Models;
 using culinaryApp.Interfaces;
 using AutoMapper;
 using culinaryApp.Dto;
+using Microsoft.AspNetCore.Authorization;
 
 namespace culinaryApp.Controllers
 {
@@ -14,14 +15,16 @@ namespace culinaryApp.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IProductFromPlannerRepository _productFromPlannerRepository;
         private readonly IPlannerRecipeRepository _plannerRecipeRepository;
+        private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
 
-        public PlannerController(IPlannerRepository plannerRepository, IUserRepository userRepository, IProductFromPlannerRepository productFromPlannerRepository, IPlannerRecipeRepository plannerRecipeRepository, IMapper mapper)
+        public PlannerController(IPlannerRepository plannerRepository, IUserRepository userRepository, IProductFromPlannerRepository productFromPlannerRepository, IPlannerRecipeRepository plannerRecipeRepository, IRecipeRepository recipeRepository, IMapper mapper)
         {
             _plannerRepository = plannerRepository;
             _userRepository = userRepository;
             _productFromPlannerRepository = productFromPlannerRepository;
             _plannerRecipeRepository = plannerRecipeRepository;
+            _recipeRepository = recipeRepository;
             _mapper = mapper;
         }
 
@@ -35,6 +38,41 @@ namespace culinaryApp.Controllers
                 return BadRequest(ModelState);
 
             return Ok(planners);
+        }
+
+        [Authorize]
+        [HttpGet("fromUser")]
+        [ProducesResponseType(200, Type = typeof(GetPlannerDto))]
+        public IActionResult GetUserPlanner([FromQuery] DateTime date)
+        {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
+            var planner = _mapper.Map<GetPlannerDto>(_plannerRepository.GetUserPlanner(userId, date));
+
+            if(planner == null)
+            {
+                return Ok(null);
+            }
+
+            var plannerRecipes = _mapper.Map<List<GetPlannerRecipeDto>>(_plannerRecipeRepository.GetPlannerRecipes(planner.Id));
+            foreach (var pr in plannerRecipes)
+            {
+                pr.Recipe = _mapper.Map<RecipeDto>(_recipeRepository.GetRecipe(pr.RecipeId));
+            }
+            planner.PlannerRecipes = plannerRecipes;
+
+            var products = _mapper.Map<List<GetProductFromPlannerDto>>(_productFromPlannerRepository.GetPlannerProducts(planner.Id));
+            foreach (var product in products)
+            {
+                product.Ingredient = _productFromPlannerRepository.GetIngredientFromProduct(product.IngredientId);
+            }
+            planner.Products = products;
+
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(planner);
         }
 
         [HttpGet("{plannerId}")]
@@ -69,11 +107,14 @@ namespace culinaryApp.Controllers
             return Ok(products);
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreatePlanner([FromQuery] int userId, [FromBody] PlannerDto plannerCreate)
+        public IActionResult CreatePlanner([FromBody] PlannerDto plannerCreate)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (plannerCreate == null)
                 return BadRequest(ModelState);
 
@@ -123,8 +164,10 @@ namespace culinaryApp.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{plannerId}")]
         [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public IActionResult DeletePlanner(int plannerId)
@@ -132,7 +175,13 @@ namespace culinaryApp.Controllers
             if (!_plannerRepository.PlannerExists(plannerId))
                 return NotFound();
 
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             var plannerToDelete = _plannerRepository.GetPlanner(plannerId);
+
+            if(plannerToDelete.UserId != userId)
+                return Forbid();
+
             var productsToDelete = _plannerRepository.GetPlannerProducts(plannerId);
             var plannerRecipesToDelete = _plannerRepository.GetPlannerRecipes(plannerId);
 

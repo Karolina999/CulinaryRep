@@ -34,12 +34,13 @@ namespace culinaryApp.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateWatchedRecipes([FromQuery] int recipeId, [FromQuery] int plannerId)
+        public IActionResult CreateWatchedRecipes([FromQuery] int recipeId, [FromQuery] int plannerId, [FromQuery] MealTypes mealType)
         {
 
             var plannerRecipe = _plannerRecipeRepository.GetPlannerRecipes()
                 .Where(x => x.PlannerId == plannerId)
                 .Where(x => x.RecipeId == recipeId)
+                .Where(x => x.MealType == mealType)
                 .FirstOrDefault();
 
             if (plannerRecipe != null)
@@ -51,7 +52,7 @@ namespace culinaryApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_plannerRecipeRepository.CreatePlannerRecipe(recipeId, plannerId))
+            if (!_plannerRecipeRepository.CreatePlannerRecipe(recipeId, plannerId, mealType))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -65,12 +66,12 @@ namespace culinaryApp.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeletePlannerRecipe(int recipeId, int plannerId)
+        public IActionResult DeletePlannerRecipe(int plannerRecipeId)
         {
-            if (!_plannerRecipeRepository.PlannerRecipeExists(recipeId, plannerId))
+            if (!_plannerRecipeRepository.PlannerRecipeExists(plannerRecipeId))
                 return NotFound();
 
-            var plannerRecipeToDelete = _plannerRecipeRepository.GetPlannerRecipe(recipeId, plannerId);
+            var plannerRecipeToDelete = _plannerRecipeRepository.GetPlannerRecipe(plannerRecipeId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

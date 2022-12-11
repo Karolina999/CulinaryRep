@@ -71,6 +71,16 @@ namespace culinaryApp.Repository
             return plannerRecipes;
         }
 
+        public Planner GetUserPlanner(int userId, DateTime date)
+        {
+            return _context.Planners.Where(x => x.User.Id == userId && x.Date == date).FirstOrDefault();
+        }
+
+        public ICollection<Planner> GetUserPlanners(int userId)
+        {
+            return _context.Planners.Where(x => x.User.Id == userId).OrderBy(x => x.Id).ToList();
+        }
+
         public bool PlannerExists(int plannerId)
         {
             return _context.Planners.Any(x => x.Id == plannerId);

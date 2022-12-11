@@ -12,7 +12,7 @@ namespace culinaryApp.Repository
             _context = context;
         }
 
-        public bool CreatePlannerRecipe(int recipeId, int plannerId)
+        public bool CreatePlannerRecipe(int recipeId, int plannerId, MealTypes mealType)
         {
             var recipe = _context.Recipes.Where(x => x.Id == recipeId).FirstOrDefault();
             var planner = _context.Planners.Where(x => x.Id == plannerId).FirstOrDefault();
@@ -21,6 +21,7 @@ namespace culinaryApp.Repository
             {
                 Recipe = recipe,
                 Planner = planner,
+                MealType = mealType
             };
 
             _context.Add(plannerRecipe);
@@ -39,9 +40,9 @@ namespace culinaryApp.Repository
             return Save();
         }
 
-        public PlannerRecipe GetPlannerRecipe(int recipeId, int plannerId)
+        public PlannerRecipe GetPlannerRecipe(int plannerRecipeId)
         {
-            return _context.PlannerRecipes.Where(x => x.RecipeId == recipeId && x.PlannerId == plannerId).FirstOrDefault();
+            return _context.PlannerRecipes.Where(x => x.Id == plannerRecipeId).FirstOrDefault();
         }
 
         public ICollection<PlannerRecipe> GetPlannerRecipes()
@@ -49,9 +50,26 @@ namespace culinaryApp.Repository
             return _context.PlannerRecipes.ToList();
         }
 
-        public bool PlannerRecipeExists(int recipeId, int plannerId)
+        public ICollection<PlannerRecipe> GetPlannerRecipes(int plannerId)
         {
-            return _context.PlannerRecipes.Any(x => x.RecipeId == recipeId && x.PlannerId == plannerId);
+            return _context.PlannerRecipes.Where(x => x.PlannerId == plannerId).ToList();
+        }
+
+        public ICollection<Recipe> GetRecipes(int plannerId)
+        {
+            var plannerRecipe = _context.PlannerRecipes.Where(x => x.PlannerId == plannerId);
+            var recipes = new List<Recipe>();
+            foreach(var pr in plannerRecipe)
+            {
+                recipes.AddRange(_context.Recipes.Where(x => x.Id == pr.RecipeId).ToList());
+            }
+
+            return recipes;
+        }
+
+        public bool PlannerRecipeExists(int plannerRecipeId)
+        {
+            return _context.PlannerRecipes.Any(x => x.Id == plannerRecipeId);
         }
 
         public bool Save()

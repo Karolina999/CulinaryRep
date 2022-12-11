@@ -54,6 +54,18 @@ namespace culinaryApp.Controllers
             return Ok(recipes);
         }
 
+        [HttpGet("includes")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Recipe>))]
+        public IActionResult GetRecipesIncludes([FromQuery] string title )
+        {
+            var recipes = _mapper.Map<List<RecipeDto>>(_recipeRepository.GetRecipesIncludes(title));
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(recipes);
+        }
+
         [HttpGet("{recipeId}")]
         [ProducesResponseType(200, Type = typeof(Recipe))]
         [ProducesResponseType(400)]

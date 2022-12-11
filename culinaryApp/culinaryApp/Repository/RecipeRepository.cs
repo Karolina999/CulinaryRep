@@ -107,6 +107,11 @@ namespace culinaryApp.Repository
             return comments;
         }
 
+        public ICollection<Recipe> GetRecipesIncludes(string title)
+        {
+            return _context.Recipes.Where(x => x.Title.ToLower().Contains(title.ToLower())).OrderBy(x => x.Id).ToList();
+        }
+
         public ICollection<ProductFromRecipe> GetRecipesProducts(ICollection<Recipe> recipes)
         {
             var products = new List<ProductFromRecipe>();

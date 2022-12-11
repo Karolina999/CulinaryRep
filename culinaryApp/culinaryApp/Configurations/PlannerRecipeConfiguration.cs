@@ -1,12 +1,13 @@
 ﻿using culinaryApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace culinaryApp.Configurations
 {
-    public class ProductFromPlannerConfiguration : IEntityTypeConfiguration<ProductFromPlanner>
+    public class PlannerRecipeConfiguration
     {
-        public void Configure(EntityTypeBuilder<ProductFromPlanner> builder)
+        public void Configure(EntityTypeBuilder<PlannerRecipe> builder)
         {
             builder.HasKey(x => x.Id);
 
@@ -14,15 +15,11 @@ namespace culinaryApp.Configurations
                 .HasColumnType("int")
                 .ValueGeneratedOnAdd();
 
-            builder.Property(x => x.Unit)
-                .HasColumnType("nvarchar(50)")
-                .IsRequired();
-
             builder.Property(x => x.MealType)
                 .HasColumnType("nvarchar(50)")
                 .IsRequired();
 
-            builder.HasOne(x => x.Ingredient)
+            builder.HasOne(x => x.Recipe)
                 .WithMany();
 
             builder.HasOne(x => x.Planner)

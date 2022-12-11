@@ -31,6 +31,16 @@ namespace culinaryApp.Repository
             return Save();
         }
 
+        public Ingredient GetIngredientFromProduct(int ingrednientId)
+        {
+            return _context.Ingredients.Where(x => x.Id == ingrednientId).FirstOrDefault();
+        }
+
+        public ICollection<ProductFromPlanner> GetPlannerProducts(int plannerId)
+        {
+            return _context.ProductFromPlanners.Where(x => x.Planner.Id == plannerId).ToList();
+        }
+
         public ProductFromPlanner GetProduct(int id)
         {
             return _context.ProductFromPlanners.FirstOrDefault(x => x.Id == id);
