@@ -121,6 +121,14 @@ namespace culinaryApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var planner = _plannerRepository.GetPlanners().Where(x => x.Date == plannerCreate.Date).FirstOrDefault();
+
+            if (planner != null)
+            {
+                ModelState.AddModelError("", "Planner already exists");
+                return StatusCode(422, ModelState);
+            }
+
             var plannerMap = _mapper.Map<Planner>(plannerCreate);
 
             plannerMap.User = _userRepository.GetUser(userId);

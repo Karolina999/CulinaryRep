@@ -81,7 +81,7 @@ namespace culinaryApp.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateProductFromPlanner(int productFromPlannerId, [FromBody] ProductFromPlannerDto updateProductFromPlanner)
+        public IActionResult UpdateProductFromPlanner(int productFromPlannerId,[FromQuery] int ingredientId, [FromBody] ProductFromPlannerDto updateProductFromPlanner)
         {
             if (updateProductFromPlanner == null)
                 return BadRequest(ModelState);
@@ -96,6 +96,8 @@ namespace culinaryApp.Controllers
                 return BadRequest();
 
             var productFromPlannerMap = _mapper.Map<ProductFromPlanner>(updateProductFromPlanner);
+
+            productFromPlannerMap.Ingredient = _ingredientRepository.GetIngredient(ingredientId);
 
             if (!_productRepository.UpdateProductFromPlanner(productFromPlannerMap))
             {
