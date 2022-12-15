@@ -5,7 +5,6 @@
         public int Id { get; set; }
         public string? Title { get; set; }
         public Level Level { get; set; }
-        /*public TimeSpan? Time { get; set; }*/
         public string? Time { get; set; }
         public int People { get; set; }
         public string? Photo  { get; set; }
@@ -16,6 +15,7 @@
         public ICollection<WatchedRecipe>? WatchedRecipes { get; set; }
         public ICollection<Planner>? Planners { get; set; }
         public ICollection<PlannerRecipe>? PlannerRecipe { get; set; }
+        public double Rating { get; set; }
 
         /*public ICollection<ProductFromRecipe>? Products { get; set; }*/
         /*public ICollection<Step>? Steps { get; set; }*/

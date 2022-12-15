@@ -32,7 +32,7 @@ builder.Services.AddTransient<IStepRepository, StepRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IUserCommentRepository, UserCommentRepository>();
 builder.Services.AddTransient<IWatchedRecipeRepository, WatchedRecipeRepository>();
-builder.Services.AddTransient<IPlannerRecipeRepository, PlannerRecipeRepository>();
+//builder.Services.AddTransient<IPlannerRecipeRepository, PlannerRecipeRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

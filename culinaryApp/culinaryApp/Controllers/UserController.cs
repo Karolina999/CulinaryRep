@@ -84,13 +84,13 @@ namespace culinaryApp.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{userId}")]
+        [Authorize]
+        [HttpGet("user")]
         [ProducesResponseType(200, Type = typeof(User))]
         [ProducesResponseType(400)]
-        public IActionResult GetUser(int userId)
+        public IActionResult GetUser()
         {
-            if (!_userRepository.UserExists(userId))
-                return NotFound();
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
 
             var user = _mapper.Map<UserDto>(_userRepository.GetUser(userId));
 
@@ -218,7 +218,7 @@ namespace culinaryApp.Controllers
         }
 
         [Authorize]
-        [HttpPut("{userId}")]
+        [HttpPut()]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -244,15 +244,13 @@ namespace culinaryApp.Controllers
 
             if (userWithEmail is not null && userWithEmail?.Id != user.Id)
             {
-                ModelState.AddModelError("", "There is a user with this e-mail");
-                return StatusCode(422, ModelState);
+                return Problem("There is a user with this e-mail");
             }
-            
+
             user.FirstName = updateUser.FirstName;
             user.LastName = updateUser.LastName;
             user.Email = updateUser.Email;
-            user.Password = BCrypt.Net.BCrypt.HashPassword(updateUser.Password);
-            user.ImageUrl = updateUser.ImageUrl;
+            user.Photo = updateUser.ImageUrl;
 
             var userMap = _mapper.Map<User>(user);
 
@@ -265,11 +263,46 @@ namespace culinaryApp.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{userId}")]
+        [Authorize]
+        [HttpPut("password")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteUser(int userId)
+        public IActionResult UpdateUserPassword([FromQuery] string newPassword, [FromQuery] string oldPassword)
+        {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
+            if (!_userRepository.UserExists(userId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var user = _userRepository.GetUser(userId);
+
+            if (!BCrypt.Net.BCrypt.Verify(oldPassword, user.Password))
+            {
+                return Problem("Bad old password");
+            }
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+            var userMap = _mapper.Map<User>(user);
+
+            if (!_userRepository.UpdateUser(userMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+        /*
+        [HttpDelete("{userId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]*/
+        /*public IActionResult DeleteUser(int userId)
         {
             if (!_userRepository.UserExists(userId))
                 return NotFound();
@@ -375,6 +408,6 @@ namespace culinaryApp.Controllers
             }
 
             return NoContent();
-        }
+        }*/
     }
 }

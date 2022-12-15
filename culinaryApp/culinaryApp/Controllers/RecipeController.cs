@@ -264,7 +264,7 @@ namespace culinaryApp.Controllers
 
             return NoContent();
         }
-
+/*
         [HttpDelete("{recipeId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -322,6 +322,6 @@ namespace culinaryApp.Controllers
 
             return NoContent();
         }
-
+*/
     }
 }

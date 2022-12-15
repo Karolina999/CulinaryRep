@@ -31,7 +31,7 @@ namespace culinaryApp.Configurations
                 .HasColumnType("nvarchar(MAX)")
                 .IsRequired();
 
-            builder.Property(x => x.ImageUrl)
+            builder.Property(x => x.Photo)
                 .HasColumnType("nvarchar(MAX)");
 
             builder

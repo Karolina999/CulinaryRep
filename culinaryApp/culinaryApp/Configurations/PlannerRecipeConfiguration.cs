@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace culinaryApp.Configurations
 {
-    public class PlannerRecipeConfiguration
+    public class PlannerRecipeConfiguration : IEntityTypeConfiguration<PlannerRecipe>
     {
         public void Configure(EntityTypeBuilder<PlannerRecipe> builder)
         {
@@ -20,10 +20,16 @@ namespace culinaryApp.Configurations
                 .IsRequired();
 
             builder.HasOne(x => x.Recipe)
-                .WithMany();
+                .WithMany(x => x.PlannerRecipe)
+                .HasForeignKey(x => x.RecipeId)
+                .OnDelete(DeleteBehavior.NoAction);
+;
 
             builder.HasOne(x => x.Planner)
-                .WithMany();
+                .WithMany(x => x.PlannerRecipes)
+                .HasForeignKey(x => x.PlannerId)
+                .OnDelete(DeleteBehavior.NoAction);
+            ;
         }
     }
 }

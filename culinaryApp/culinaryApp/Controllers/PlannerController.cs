@@ -39,7 +39,7 @@ namespace culinaryApp.Controllers
 
             return Ok(planners);
         }
-
+/*
         [Authorize]
         [HttpGet("fromUser")]
         [ProducesResponseType(200, Type = typeof(GetPlannerDto))]
@@ -74,7 +74,7 @@ namespace culinaryApp.Controllers
 
             return Ok(planner);
         }
-
+*/
         [HttpGet("{plannerId}")]
         [ProducesResponseType(200, Type = typeof(Planner))]
         [ProducesResponseType(400)]
@@ -172,7 +172,7 @@ namespace culinaryApp.Controllers
             return NoContent();
         }
 
-        [Authorize]
+      /*  [Authorize]
         [HttpDelete("{plannerId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
@@ -216,6 +216,6 @@ namespace culinaryApp.Controllers
 
             return NoContent();
         
-        }
+        }*/
     }
 }

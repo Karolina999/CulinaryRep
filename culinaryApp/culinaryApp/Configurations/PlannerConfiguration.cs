@@ -20,27 +20,7 @@ namespace culinaryApp.Configurations
 
             builder.HasOne(x => x.User)
                 .WithMany();
-/*
-            builder
-            .HasMany(u => u.Recipes)
-            .WithMany(r => r.Planners)
-            .UsingEntity<PlannerRecipe>(
-                x =>
-                    x.HasOne(y => y.Recipe)
-                        .WithMany(y => y.PlannerRecipe)
-                        .HasForeignKey(y => y.RecipeId)
-                        .OnDelete(DeleteBehavior.NoAction),
-                x =>
-                    x.HasOne(y => y.Planner)
-                        .WithMany(y => y.PlannerRecipes)
-                        .HasForeignKey(y => y.PlannerId)
-                        .OnDelete(DeleteBehavior.NoAction)
-                );*/
 
-            /*
-             Products
-             PlannerRecipes - PlannerRecipe Conf
-             */
         }
     }
 }

@@ -41,10 +41,10 @@ namespace culinaryApp.Repository
             return _context.ProductFromPlanners.Where(x => x.Planner.Id == plannerId).ToList();
         }
 
-        public ICollection<PlannerRecipe> GetPlannerRecipes(int plannerId)
+      /*  public ICollection<PlannerRecipe> GetPlannerRecipes(int plannerId)
         {
             return _context.PlannerRecipes.Where(x => x.PlannerId == plannerId).ToList();
-        }
+        }*/
 
         public ICollection<Planner> GetPlanners()
         {
@@ -61,7 +61,7 @@ namespace culinaryApp.Repository
             return products;
         }
 
-        public ICollection<PlannerRecipe> GetPlannersRecipes(ICollection<Planner> planners)
+   /*     public ICollection<PlannerRecipe> GetPlannersRecipes(ICollection<Planner> planners)
         {
             var plannerRecipes = new List<PlannerRecipe>();
             foreach (var planner in planners)
@@ -69,7 +69,7 @@ namespace culinaryApp.Repository
                 plannerRecipes.AddRange(_context.PlannerRecipes.Where(x => x.PlannerId == planner.Id).ToList());
             }
             return plannerRecipes;
-        }
+        }*/
 
         public Planner GetUserPlanner(int userId, DateTime date)
         {

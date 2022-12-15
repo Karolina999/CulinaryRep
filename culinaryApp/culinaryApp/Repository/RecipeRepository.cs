@@ -32,7 +32,7 @@ namespace culinaryApp.Repository
             return Save();
         }
 
-        public ICollection<PlannerRecipe> GetPlannerRecipeList(ICollection<Recipe> recipes)
+  /*      public ICollection<PlannerRecipe> GetPlannerRecipeList(ICollection<Recipe> recipes)
         {
             var plannerRecipes = new List<PlannerRecipe>();
             foreach (var recipe in recipes)
@@ -45,7 +45,7 @@ namespace culinaryApp.Repository
         public ICollection<PlannerRecipe> GetPlannerRecipes(int recipeId)
         {
             return _context.PlannerRecipes.Where(x => x.Recipe.Id == recipeId).ToList();
-        }
+        }*/
 
         public Recipe GetRecipe(int id)
         {
