@@ -39,7 +39,7 @@ namespace culinaryApp.Controllers
 
             return Ok(planners);
         }
-/*
+
         [Authorize]
         [HttpGet("fromUser")]
         [ProducesResponseType(200, Type = typeof(GetPlannerDto))]
@@ -49,7 +49,7 @@ namespace culinaryApp.Controllers
 
             var planner = _mapper.Map<GetPlannerDto>(_plannerRepository.GetUserPlanner(userId, date));
 
-            if(planner == null)
+            if (planner == null)
             {
                 return Ok(null);
             }
@@ -74,7 +74,7 @@ namespace culinaryApp.Controllers
 
             return Ok(planner);
         }
-*/
+
         [HttpGet("{plannerId}")]
         [ProducesResponseType(200, Type = typeof(Planner))]
         [ProducesResponseType(400)]
@@ -172,7 +172,7 @@ namespace culinaryApp.Controllers
             return NoContent();
         }
 
-      /*  [Authorize]
+        [Authorize]
         [HttpDelete("{plannerId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
@@ -187,7 +187,7 @@ namespace culinaryApp.Controllers
 
             var plannerToDelete = _plannerRepository.GetPlanner(plannerId);
 
-            if(plannerToDelete.UserId != userId)
+            if (plannerToDelete.UserId != userId)
                 return Forbid();
 
             var productsToDelete = _plannerRepository.GetPlannerProducts(plannerId);
@@ -215,7 +215,7 @@ namespace culinaryApp.Controllers
             }
 
             return NoContent();
-        
-        }*/
+
+        }
     }
 }

@@ -4,15 +4,15 @@ using culinaryApp.Models;
 
 namespace culinaryApp.Repository
 {
-    public class PlannerRecipeRepository //: IPlannerRecipeRepository
+    public class PlannerRecipeRepository : IPlannerRecipeRepository
     {
-/*        private readonly CulinaryDbContext _context;
+        private readonly CulinaryDbContext _context;
         public PlannerRecipeRepository(CulinaryDbContext context)
         {
             _context = context;
-        }*/
+        }
 
-      /*  public bool CreatePlannerRecipe(int recipeId, int plannerId, MealTypes mealType)
+        public bool CreatePlannerRecipe(int recipeId, int plannerId, MealTypes mealType)
         {
             var recipe = _context.Recipes.Where(x => x.Id == recipeId).FirstOrDefault();
             var planner = _context.Planners.Where(x => x.Id == plannerId).FirstOrDefault();
@@ -59,7 +59,7 @@ namespace culinaryApp.Repository
         {
             var plannerRecipe = _context.PlannerRecipes.Where(x => x.PlannerId == plannerId);
             var recipes = new List<Recipe>();
-            foreach(var pr in plannerRecipe)
+            foreach (var pr in plannerRecipe)
             {
                 recipes.AddRange(_context.Recipes.Where(x => x.Id == pr.RecipeId).ToList());
             }
@@ -76,6 +76,6 @@ namespace culinaryApp.Repository
         {
             var saved = _context.SaveChanges();
             return saved > 0 ? true : false;
-        }*/
+        }
     }
 }

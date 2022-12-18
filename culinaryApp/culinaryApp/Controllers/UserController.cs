@@ -297,12 +297,12 @@ namespace culinaryApp.Controllers
 
             return NoContent();
         }
-        /*
+
         [HttpDelete("{userId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
-        [ProducesResponseType(404)]*/
-        /*public IActionResult DeleteUser(int userId)
+        [ProducesResponseType(404)]
+        public IActionResult DeleteUser(int userId)
         {
             if (!_userRepository.UserExists(userId))
                 return NotFound();
@@ -408,6 +408,6 @@ namespace culinaryApp.Controllers
             }
 
             return NoContent();
-        }*/
+        }
     }
 }

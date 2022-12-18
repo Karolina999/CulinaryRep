@@ -14,10 +14,10 @@ namespace culinaryApp.Helper
             CreateMap<Planner, PlannerDto>();
             CreateMap<PlannerDto, Planner>();
             CreateMap<Planner, GetPlannerDto>();
-/*
+
             CreateMap<PlannerRecipe, PlannerRecipeDto>();
             CreateMap<PlannerRecipeDto, PlannerRecipe>();
-            CreateMap<PlannerRecipe, GetPlannerRecipeDto>();*/
+            CreateMap<PlannerRecipe, GetPlannerRecipeDto>();
 
             CreateMap<ProductFromList, ProductFromListDto>();
             CreateMap<ProductFromListDto, ProductFromList>();

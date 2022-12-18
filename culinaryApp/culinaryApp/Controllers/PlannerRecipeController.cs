@@ -10,16 +10,16 @@ namespace culinaryApp.Controllers
     [ApiController]
     public class PlannerRecipeController : ControllerBase
     {
-       // private readonly IPlannerRecipeRepository _plannerRecipeRepository;
+        private readonly IPlannerRecipeRepository _plannerRecipeRepository;
         private readonly IMapper _mapper;
-        //IPlannerRecipeRepository plannerRecipeRepository,
-        public PlannerRecipeController( IMapper mapper)
+       
+        public PlannerRecipeController(IPlannerRecipeRepository plannerRecipeRepository, IMapper mapper)
         {
-           // _plannerRecipeRepository = plannerRecipeRepository;
+            _plannerRecipeRepository = plannerRecipeRepository;
             _mapper = mapper;
         }
 
-       /* [HttpGet]
+        [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PlannerRecipe>))]
         public IActionResult GePlannersRecipes()
         {
@@ -83,6 +83,6 @@ namespace culinaryApp.Controllers
             }
 
             return NoContent();
-        }*/
+        }
     }
 }
