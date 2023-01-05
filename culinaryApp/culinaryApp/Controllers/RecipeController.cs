@@ -54,6 +54,18 @@ namespace culinaryApp.Controllers
             return Ok(recipes);
         }
 
+        [HttpGet("top12")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Recipe>))]
+        public IActionResult GetTopRecipes()
+        {
+            var recipes = _mapper.Map<List<RecipeDto>>(_recipeRepository.GetTopRecipes());
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(recipes);
+        }
+
         [HttpGet("includes")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Recipe>))]
         public IActionResult GetRecipesIncludes([FromQuery] string title )
@@ -123,7 +135,14 @@ namespace culinaryApp.Controllers
             if (!_recipeRepository.RecipeExists(recipeId))
                 return NotFound();
 
-            var comments = _mapper.Map<List<UserCommentDto>>(_recipeRepository.GetRecipeComments(recipeId));
+            /*var comments = _mapper.Map<List<UserCommentDto>>(_recipeRepository.GetRecipeComments(recipeId));*/
+
+            var comments = _recipeRepository.GetRecipeComments(recipeId);
+
+            foreach (var comment in comments)
+            {
+                comment.User = _userRepository.GetUser(comment.UserId);
+            }
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

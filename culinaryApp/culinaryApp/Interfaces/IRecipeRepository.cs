@@ -6,6 +6,7 @@ namespace culinaryApp.Interfaces
     public interface IRecipeRepository
     {
         ICollection<Recipe> GetRecipes();
+        ICollection<Recipe> GetTopRecipes();
         ICollection<Recipe> GetRecipesIncludes(string title);
         Recipe GetRecipe(int id);
         ICollection<Recipe> GetRecipes(string title);

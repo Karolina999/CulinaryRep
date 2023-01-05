@@ -56,6 +56,12 @@ namespace culinaryApp.Controllers
         [ProducesResponseType(400)]
         public IActionResult CreateUserComment([FromQuery] int userId, [FromQuery] int recipeId, [FromBody] UserCommentDto userCommentCreate)
         {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            if (!_userRepository.UserExists(userId))
+                return NotFound();
+
             if (userCommentCreate == null)
                 return BadRequest(ModelState);
 
@@ -68,16 +74,14 @@ namespace culinaryApp.Controllers
 
             if (isOwner != null)
             {
-                ModelState.AddModelError("", "User cannot comment his own recipe");
-                return StatusCode(422, ModelState);
+                return Problem("User cannot comment his own recipe");
             }
 
             var alreadyCommented = _userCommentRepository.UserCommentRecipeExists(userId, recipeId);
 
             if (alreadyCommented)
             {
-                ModelState.AddModelError("", "A user has already commented on this recipe");
-                return StatusCode(422, ModelState);
+                return Problem("A user has already commented on this recipe");
             }
 
             var userCommentMap = _mapper.Map<UserComment>(userCommentCreate);
@@ -88,6 +92,17 @@ namespace culinaryApp.Controllers
             if (!_userCommentRepository.CreateUserComment(userCommentMap))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+            var recipeRating = _recipeRepository.GetRecipeRating(recipeId);
+
+            recipe.Rating = Decimal.ToDouble(recipeRating.Rating);
+
+            if (!_recipeRepository.UpdateRecipe(recipe))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);
             }
 
