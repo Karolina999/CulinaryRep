@@ -167,11 +167,14 @@ namespace culinaryApp.Controllers
             return Ok(planners);
         }
 
-        [HttpGet("{userId}/watchedRecipes")]
+        [Authorize]
+        [HttpGet("watchedRecipes")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Recipe>))]
         [ProducesResponseType(400)]
-        public IActionResult GetWatchedRecipes(int userId)
+        public IActionResult GetWatchedRecipes()
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (!_userRepository.UserExists(userId))
                 return NotFound();
 

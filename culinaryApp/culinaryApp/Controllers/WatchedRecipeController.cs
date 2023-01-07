@@ -3,6 +3,7 @@ using culinaryApp.Models;
 using culinaryApp.Interfaces;
 using AutoMapper;
 using culinaryApp.Dto;
+using Microsoft.AspNetCore.Authorization;
 
 namespace culinaryApp.Controllers
 {
@@ -31,11 +32,32 @@ namespace culinaryApp.Controllers
             return Ok(watchedRecipes);
         }
 
+        [Authorize]
+        [HttpGet("isWatched")]
+        public IActionResult RecipeIsWatched([FromQuery] int recipeId)
+        {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
+            var watchedRecipe = _watchedRecipeRepository.GetWatchedRecipes()
+                 .Where(x => x.UserId == userId)
+                 .Where(x => x.RecipeId == recipeId)
+                 .FirstOrDefault();
+
+            if (watchedRecipe != null)
+            {
+                return Problem("Watched Recipe already exists");
+            }
+
+            return Ok("Watched Recipe do not exists");
+        }
+
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateWatchedRecipes([FromQuery] int recipeId, [FromQuery] int userId)
+        public IActionResult CreateWatchedRecipes([FromQuery] int recipeId)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
 
             var watchedRecipe = _watchedRecipeRepository.GetWatchedRecipes()
                 .Where(x => x.UserId == userId)
@@ -44,8 +66,7 @@ namespace culinaryApp.Controllers
 
             if (watchedRecipe != null)
             {
-                ModelState.AddModelError("", "Watched Recipe already exists");
-                return StatusCode(422, ModelState);
+                return Problem("Watched Recipe already exists");
             }
 
             if (!ModelState.IsValid)
@@ -61,12 +82,15 @@ namespace culinaryApp.Controllers
 
         }
 
+        [Authorize]
         [HttpDelete]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteWatchedRecipe(int recipeId, int userId)
+        public IActionResult DeleteWatchedRecipe([FromQuery] int recipeId)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (!_watchedRecipeRepository.WatchedRecipeExists(recipeId, userId))
                 return NotFound();
 
