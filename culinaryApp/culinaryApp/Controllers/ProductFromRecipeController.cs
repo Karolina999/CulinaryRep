@@ -77,11 +77,11 @@ namespace culinaryApp.Controllers
 
         }
 
-        [HttpPut("{productFromRecipeId}")]
+        [HttpPut("{productFromRecipeId}/{ingredientId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateProductFromRecipe(int productFromRecipeId, [FromBody] ProductFromRecipeDto updateProductFromRecipe)
+        public IActionResult UpdateProductFromRecipe(int productFromRecipeId, int ingredientId, [FromBody] ProductFromRecipeDto updateProductFromRecipe)
         {
             if (updateProductFromRecipe == null)
                 return BadRequest(ModelState);
@@ -96,6 +96,7 @@ namespace culinaryApp.Controllers
                 return BadRequest();
 
             var productFromRecipeMap = _mapper.Map<ProductFromRecipe>(updateProductFromRecipe);
+            productFromRecipeMap.Ingredient = _ingredientRepository.GetIngredient(ingredientId);
 
             if (!_productRepository.UpdateProductFromRecipe(productFromRecipeMap))
             {

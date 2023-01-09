@@ -3,6 +3,7 @@ using culinaryApp.Models;
 using culinaryApp.Interfaces;
 using AutoMapper;
 using culinaryApp.Dto;
+using Microsoft.AspNetCore.Authorization;
 
 namespace culinaryApp.Controllers
 {
@@ -51,11 +52,14 @@ namespace culinaryApp.Controllers
             return Ok(userComment);
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateUserComment([FromQuery] int userId, [FromQuery] int recipeId, [FromBody] UserCommentDto userCommentCreate)
+        public IActionResult CreateUserComment([FromQuery] int recipeId, [FromBody] UserCommentDto userCommentCreate)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (!_recipeRepository.RecipeExists(recipeId))
                 return NotFound();
 

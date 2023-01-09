@@ -111,7 +111,7 @@ namespace culinaryApp.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            return Ok("Successfully created");
+            return Ok(shoppingListMap);
 
         }
 
@@ -131,7 +131,7 @@ namespace culinaryApp.Controllers
             if (!_shoppingListRepository.ShoppingListExists(shoppingListId))
                 return NotFound();
 
-            var shoppingList = _mapper.Map<ShoppingListDto>(_shoppingListRepository.GetShoppingList(shoppingListId));
+            var shoppingList = _shoppingListRepository.GetShoppingList(shoppingListId);
 
             var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
 
@@ -141,9 +141,9 @@ namespace culinaryApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var shoppingListMap = _mapper.Map<ShoppingList>(updateShoppingList);
+            shoppingList.Title = updateShoppingList.Title;
 
-            if (!_shoppingListRepository.UpdateShoppingList(shoppingListMap))
+            if (!_shoppingListRepository.UpdateShoppingList(shoppingList))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);

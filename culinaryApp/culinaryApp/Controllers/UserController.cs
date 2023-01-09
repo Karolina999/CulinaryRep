@@ -116,11 +116,14 @@ namespace culinaryApp.Controllers
             return Ok(comments);
         }
 
-        [HttpGet("{userId}/recipes")]
+        [Authorize]
+        [HttpGet("recipes")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Recipe>))]
         [ProducesResponseType(400)]
-        public IActionResult GetUserRecipes(int userId)
+        public IActionResult GetUserRecipes()
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (!_userRepository.UserExists(userId))
                 return NotFound();
 
@@ -216,12 +219,12 @@ namespace culinaryApp.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            return Ok("Successfully created");
+            return Ok(userMap);
 
         }
 
         [Authorize]
-        [HttpPut()]
+        [HttpPut]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -253,7 +256,7 @@ namespace culinaryApp.Controllers
             user.FirstName = updateUser.FirstName;
             user.LastName = updateUser.LastName;
             user.Email = updateUser.Email;
-            user.Photo = updateUser.ImageUrl;
+            user.Photo = updateUser.Photo;
 
             var userMap = _mapper.Map<User>(user);
 

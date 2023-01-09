@@ -78,6 +78,35 @@ namespace culinaryApp.Controllers
 
         }
 
+        [HttpPost("products")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateProductsFromList([FromQuery] int shoppingListId, [FromBody] IEnumerable<ProductFromListDto> productsFromListCreate)
+        {
+            if (productsFromListCreate == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var productsFromLisMap = _mapper.Map<List<ProductFromList>>(productsFromListCreate);
+            var shoppingList = _shoppingListRepository.GetShoppingList(shoppingListId);
+
+            foreach (var productFromLisMap in productsFromLisMap)
+            {
+                productFromLisMap.Ingredient = _ingredientRepository.GetIngredient(productFromLisMap.IngredientId);
+                productFromLisMap.ShoppingList = shoppingList;
+
+                if (!_productRepository.CreateProductFromList(productFromLisMap))
+                {
+                    ModelState.AddModelError("", "Something went wrong while saving");
+                    return StatusCode(500, ModelState);
+                }
+            }
+
+            return Ok("Successfully created");
+        }
+
         [HttpPut("{productFromListId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]

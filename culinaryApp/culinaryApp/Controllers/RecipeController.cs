@@ -171,6 +171,33 @@ namespace culinaryApp.Controllers
             return Ok(products);
         }
 
+        [HttpPost("products")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ProductFromRecipe>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetRecipesIngredients([FromBody] int[] recipesId)
+        {
+            var allProducts = new List<ProductFromRecipeGetDto>();
+            foreach (var recipeId in recipesId)
+            {
+                if (!_recipeRepository.RecipeExists(recipeId))
+                    return NotFound();
+
+                var products = _mapper.Map<List<ProductFromRecipeGetDto>>(_recipeRepository.GetRecipeProducts(recipeId));
+
+                foreach (var product in products)
+                {
+                    product.Ingredient = _productRepository.GetIngredientFromProduct(product.IngredientId);
+                }
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                allProducts.AddRange(products);
+            }
+
+            return Ok(allProducts);
+        }
+
         [HttpGet("{recipeId}/author")]
         [ProducesResponseType(200, Type = typeof(UserDto))]
         [ProducesResponseType(400)]
@@ -252,30 +279,43 @@ namespace culinaryApp.Controllers
                 }
             }
 
-            return Ok("Successfully created");
+            return Ok(recipeMap);
         }
 
+        [Authorize]
         [HttpPut("{recipeId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public IActionResult UpdateRecipe(int recipeId, [FromBody] RecipeDto updateRecipe)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (updateRecipe == null)
                 return BadRequest(ModelState);
 
             if (recipeId != updateRecipe.Id)
                 return BadRequest(ModelState);
 
-            if (!_recipeRepository.RecipeExists(recipeId))
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (recipe is null)
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var RecipeMap = _mapper.Map<Recipe>(updateRecipe);
+            if (recipe.OwnerId != userId)
+                return Forbid();
 
-            if (!_recipeRepository.UpdateRecipe(RecipeMap))
+            recipe.Title = updateRecipe.Title;
+            recipe.Level = updateRecipe.Level;
+            recipe.Time = updateRecipe.Time;
+            recipe.People = updateRecipe.People;
+            recipe.Photo = updateRecipe.Photo;
+            recipe.RecipeType = updateRecipe.RecipeType;
+
+            if (!_recipeRepository.UpdateRecipe(recipe))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);
@@ -284,16 +324,23 @@ namespace culinaryApp.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{recipeId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public IActionResult DeleteRecipe(int recipeId)
         {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "id").Value);
+
             if (!_recipeRepository.RecipeExists(recipeId))
                 return NotFound();
 
             var recipeToDelete = _recipeRepository.GetRecipe(recipeId);
+
+            if (recipeToDelete.OwnerId != userId)
+                return Forbid();
+
             var stepsToDelete = _recipeRepository.GetRecipeSteps(recipeId);
             var productsToDelete = _recipeRepository.GetRecipeProducts(recipeId);
             var commentsToDelete = _recipeRepository.GetRecipeComments(recipeId);
