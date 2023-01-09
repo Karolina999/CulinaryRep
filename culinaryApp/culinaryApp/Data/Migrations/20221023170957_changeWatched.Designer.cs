@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using culinaryApp.Data;
 
@@ -11,9 +12,10 @@ using culinaryApp.Data;
 namespace culinaryApp.Data.Migrations
 {
     [DbContext(typeof(CulinaryDbContext))]
-    partial class CulinaryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221023170957_changeWatched")]
+    partial class changeWatched
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,7 +42,7 @@ namespace culinaryApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Ingredients", (string)null);
+                    b.ToTable("Ingredients");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.Planner", b =>
@@ -54,41 +56,29 @@ namespace culinaryApp.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Planners", (string)null);
+                    b.ToTable("Planners");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.PlannerRecipe", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("MealType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<int>("PlannerId")
                         .HasColumnType("int");
 
                     b.Property<int>("RecipeId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlannerId");
+                    b.HasKey("PlannerId", "RecipeId");
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("PlannerRecipes", (string)null);
+                    b.ToTable("PlannerRecipe");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.ProductFromList", b =>
@@ -99,10 +89,7 @@ namespace culinaryApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
-
-                    b.Property<int>("IngredientId")
+                    b.Property<int?>("IngredientId")
                         .HasColumnType("int");
 
                     b.Property<int?>("ShoppingListId")
@@ -118,7 +105,7 @@ namespace culinaryApp.Data.Migrations
 
                     b.HasIndex("ShoppingListId");
 
-                    b.ToTable("ProductFromLists", (string)null);
+                    b.ToTable("ProductFromLists");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.ProductFromPlanner", b =>
@@ -129,15 +116,8 @@ namespace culinaryApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
-
-                    b.Property<int>("IngredientId")
+                    b.Property<int?>("IngredientId")
                         .HasColumnType("int");
-
-                    b.Property<string>("MealType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("PlannerId")
                         .HasColumnType("int");
@@ -152,7 +132,7 @@ namespace culinaryApp.Data.Migrations
 
                     b.HasIndex("PlannerId");
 
-                    b.ToTable("ProductFromPlanners", (string)null);
+                    b.ToTable("ProductFromPlanners");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.ProductFromRecipe", b =>
@@ -163,10 +143,7 @@ namespace culinaryApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
-
-                    b.Property<int>("IngredientId")
+                    b.Property<int?>("IngredientId")
                         .HasColumnType("int");
 
                     b.Property<int?>("RecipeId")
@@ -182,7 +159,7 @@ namespace culinaryApp.Data.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("ProductFromRecipes", (string)null);
+                    b.ToTable("ProductFromRecipes");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.Recipe", b =>
@@ -197,7 +174,7 @@ namespace culinaryApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(30)");
 
-                    b.Property<int>("OwnerId")
+                    b.Property<int?>("OwnerId")
                         .HasColumnType("int");
 
                     b.Property<byte>("People")
@@ -205,9 +182,6 @@ namespace culinaryApp.Data.Migrations
 
                     b.Property<string>("Photo")
                         .HasColumnType("nvarchar(MAX)");
-
-                    b.Property<double>("Rating")
-                        .HasColumnType("float");
 
                     b.Property<string>("RecipeType")
                         .IsRequired()
@@ -225,7 +199,7 @@ namespace culinaryApp.Data.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Recipes", (string)null);
+                    b.ToTable("Recipes");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.ShoppingList", b =>
@@ -240,14 +214,14 @@ namespace culinaryApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(MAX)");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ShoppingLists", (string)null);
+                    b.ToTable("ShoppingLists");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.Step", b =>
@@ -275,7 +249,7 @@ namespace culinaryApp.Data.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("Steps", (string)null);
+                    b.ToTable("Steps");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.User", b =>
@@ -295,6 +269,9 @@ namespace culinaryApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(MAX)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(MAX)");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(MAX)");
@@ -303,15 +280,12 @@ namespace culinaryApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(MAX)");
 
-                    b.Property<string>("Photo")
-                        .HasColumnType("nvarchar(MAX)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.UserComment", b =>
@@ -340,7 +314,7 @@ namespace culinaryApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserComments", (string)null);
+                    b.ToTable("UserComments");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.WatchedRecipe", b =>
@@ -355,31 +329,14 @@ namespace culinaryApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("WatchedRecipes", (string)null);
-                });
-
-            modelBuilder.Entity("PlannerRecipe", b =>
-                {
-                    b.Property<int>("PlannersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RecipesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PlannersId", "RecipesId");
-
-                    b.HasIndex("RecipesId");
-
-                    b.ToTable("PlannerRecipe", (string)null);
+                    b.ToTable("WatchedRecipe");
                 });
 
             modelBuilder.Entity("culinaryApp.Models.Planner", b =>
                 {
                     b.HasOne("culinaryApp.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -407,9 +364,7 @@ namespace culinaryApp.Data.Migrations
                 {
                     b.HasOne("culinaryApp.Models.Ingredient", "Ingredient")
                         .WithMany()
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IngredientId");
 
                     b.HasOne("culinaryApp.Models.ShoppingList", "ShoppingList")
                         .WithMany()
@@ -424,9 +379,7 @@ namespace culinaryApp.Data.Migrations
                 {
                     b.HasOne("culinaryApp.Models.Ingredient", "Ingredient")
                         .WithMany()
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IngredientId");
 
                     b.HasOne("culinaryApp.Models.Planner", "Planner")
                         .WithMany()
@@ -441,9 +394,7 @@ namespace culinaryApp.Data.Migrations
                 {
                     b.HasOne("culinaryApp.Models.Ingredient", "Ingredient")
                         .WithMany()
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IngredientId");
 
                     b.HasOne("culinaryApp.Models.Recipe", "Recipe")
                         .WithMany()
@@ -458,9 +409,7 @@ namespace culinaryApp.Data.Migrations
                 {
                     b.HasOne("culinaryApp.Models.User", "Owner")
                         .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OwnerId");
 
                     b.Navigation("Owner");
                 });
@@ -469,9 +418,7 @@ namespace culinaryApp.Data.Migrations
                 {
                     b.HasOne("culinaryApp.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -519,21 +466,6 @@ namespace culinaryApp.Data.Migrations
                     b.Navigation("Recipe");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("PlannerRecipe", b =>
-                {
-                    b.HasOne("culinaryApp.Models.Planner", null)
-                        .WithMany()
-                        .HasForeignKey("PlannersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("culinaryApp.Models.Recipe", null)
-                        .WithMany()
-                        .HasForeignKey("RecipesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("culinaryApp.Models.Planner", b =>
